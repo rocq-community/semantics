@@ -1,5 +1,5 @@
-Require Import ZArith List syntax.
-Require Import Lia.
+From Stdlib Require Import ZArith List Lia.
+Require Import syntax.
 Open Scope Z_scope.
 
 
@@ -169,7 +169,7 @@ Definition bf (r:env)(b:bexpr) : option bool :=
   bind (af r e1)
     (fun v1 => bind (af r e2)
       (fun v2 =>
-       if Zlt_bool v1 v2 then Some true else Some false)).
+       if Z.ltb v1 v2 then Some true else Some false)).
 
 Fixpoint uf (r:env)(x:string)(n:Z){struct r}
   : option(env) :=
@@ -249,7 +249,7 @@ Proof.
   induction 1; simpl;
   rewrite aeval_f with (1:= H);
   rewrite aeval_f with (1:= H0);simpl;
-  generalize (Zlt_cases v1 v2); case (Zlt_bool v1 v2); auto;
+  generalize (Zlt_cases v1 v2); case (Z.ltb v1 v2); auto;
   intros H'; assert False by lia; contradiction.
 Qed.
 
@@ -325,7 +325,7 @@ Proof with eauto with zarith.
   intros r (e1,e2) v;simpl.
   case_eq (af r e1); case_eq (af r e2); try (intros; discriminate).
   intros v1 Heq1 v2 Heq2; unfold bind.
-  generalize (Zlt_cases v2 v1); destruct (Zlt_bool v2 v1);
+  generalize (Zlt_cases v2 v1); destruct (Z.ltb v2 v1);
   intros comp Heq; injection Heq; intros; subst v...
 Qed.
 

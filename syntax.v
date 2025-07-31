@@ -1,4 +1,4 @@
-Require Import ZArith List.
+From Stdlib Require Import ZArith List.
 
 Set Implicit Arguments.
 Section types.

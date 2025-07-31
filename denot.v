@@ -1,4 +1,4 @@
-Require Import Relations ClassicalEpsilon.
+From Stdlib Require Import Relations ClassicalEpsilon.
 Require Export function_cpo constructs.
 Require Export syntax little.
 

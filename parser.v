@@ -1,4 +1,5 @@
-Require Import String Ascii List ZArith little_w_string.
+From Stdlib Require Import String Ascii List ZArith.
+Require Import little_w_string.
 
 Import syntax str AB A D L.
 

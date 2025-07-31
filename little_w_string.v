@@ -1,4 +1,5 @@
-Require Import ZArith List String Bool syntax little axiom abstract_i.
+From Stdlib Require Import ZArith List String Bool.
+Require Import syntax little axiom abstract_i.
 Open Scope string_scope.
 
 Module str <: little_syntax.

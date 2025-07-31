@@ -1,6 +1,6 @@
-Require Export Relations Classical ClassicalEpsilon Zwf.
-Require Export Compare_dec.
-Require Export List ZArith.
+From Stdlib Require Export Relations Classical ClassicalEpsilon Zwf.
+From Stdlib Require Export Compare_dec.
+From Stdlib Require Export List ZArith.
 
 (* SECTION: Proving Tarski's fixpoint theorem. *)
 

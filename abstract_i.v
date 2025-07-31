@@ -1,4 +1,5 @@
-Require Import syntax little denot Bool List String ZArith axiom.
+From Stdlib Require Import Bool List String ZArith.
+Require Import syntax little denot axiom.
 Require intervals.
 Module ab(S:little_syntax).
 

@@ -1,7 +1,8 @@
-Require Import ZArith List.
-Require Import Lia.
+From Stdlib Require Import ZArith List Lia.
 Open Scope Z_scope.
 Open Scope list_scope.
+
+Ltac intuition1 := intuition auto with core zarith.
 
 Inductive ext_Z :Type :=
   cZ : Z -> ext_Z | minfty : ext_Z | pinfty : ext_Z.
@@ -38,12 +39,12 @@ Definition cp_max (n1 n2:ext_Z) : ext_Z :=
   | cZ n1, cZ n2 => cZ (Z.max n1 n2)
   | a, minfty => a
   | pinfty, _ => pinfty
-  | a, pinfty => pinfty
+  | _, pinfty => pinfty
   end.
 
 Lemma Zle_to_Zmin : forall n m, n <= m -> Z.min n m = n.
 intros n n'; unfold Z.min, Z.le.
-case (n?=n'); intuition.
+case (n?=n'); intuition1.
 Qed.
 
 Lemma Zle_to_Zmax : forall n m, m <= n -> Z.max n m = n.
@@ -361,11 +362,11 @@ Qed.
 
 Lemma thinner_widen : forall v1 v2, thinner v1 (widen v1 v2).
 intros [[l1 | | ][u1 | | ]]
-  [[l2 | | ][u2 | | ]]; try (unfold thinner, widen; intuition; fail);
+  [[l2 | | ][u2 | | ]]; try (unfold thinner, widen; intuition1; fail);
 match goal with |- thinner (?x, ?y) (widen _ (?z, ?t)) =>
   unfold thinner, widen;
   case (ext_eq (cp_min x z) x);case (ext_eq (cp_max y t) y);
-  try rewrite cp_max_refl; try rewrite cp_min_refl; try (intuition; fail)
+  try rewrite cp_max_refl; try rewrite cp_min_refl; try (intuition1; fail)
 end.
 Qed.
 
@@ -380,7 +381,7 @@ Definition to_p (v:ext_Z*ext_Z)(x:Z) : Prop :=
 
 Lemma to_p_thinner : forall l u x, to_p (l,u) x ->
     thinner (l, cZ x) (l, u)/\ thinner (cZ x, u)(l,u).
-intros [l | |] [u | |] x ;unfold to_p, thinner; simpl; try(intuition;fail);
+intros [l | |] [u | |] x ;unfold to_p, thinner; simpl; try(intuition1;fail);
 repeat rewrite Zmin_idempotent; repeat rewrite Zmax_idempotent.
 intros; rewrite Z.max_comm; rewrite Zle_to_Zmax; try lia;
  rewrite Z.min_comm; rewrite Zle_to_Zmin; auto; lia.
@@ -405,11 +406,11 @@ Qed.
 Lemma to_p_cp_max_min :
    forall l u x, to_p (l,u) x -> cp_max l (cZ x) = cZ x /\
                   cp_min (cZ x) u = cZ x.
-intros [l | | ][u | | ]; unfold to_p; simpl; try(intuition; fail).
+intros [l | | ][u | | ]; unfold to_p; simpl; try(intuition1; fail).
 intros; rewrite Z.max_comm; rewrite Zle_to_Zmax;try rewrite Zle_to_Zmin;
- intuition.
-intros; rewrite Z.max_comm; rewrite Zle_to_Zmax; intuition.
-intros; rewrite Zle_to_Zmin; intuition.
+ intuition1.
+intros; rewrite Z.max_comm; rewrite Zle_to_Zmax; intuition1.
+intros; rewrite Zle_to_Zmin; intuition1.
 Qed.
 
 Lemma cp_max_min_to_p :
@@ -434,7 +435,7 @@ apply cp_max_r_cp_min_l; auto.
 Qed.
 
 Lemma bot_semantics : forall x, to_p bot x.
-simpl; intuition.
+simpl; intuition1.
 Qed.
 
 Lemma add_test_constraint_right_true_none :
@@ -449,8 +450,8 @@ try (assert (H' : u2 <= b1) by(injection Heq;
             intros h; rewrite h; apply Z.le_max_r));
  destruct u1 as [u1 | | ]; simpl in Heq;
  try discriminate heq; simpl; intros e1 e2 g; simpl;
-  try(intuition;fail); try discriminate;
-destruct b2 as [b2 | | ]; simpl; try(intuition;fail).
+  try(intuition1 ;fail); try discriminate;
+destruct b2 as [b2 | | ]; simpl; try(intuition1 ;fail).
 intros; discriminate.
 Qed.
 
@@ -465,16 +466,16 @@ try (assert (H' : u2 <= b1) by(injection Heq;
             intros h; rewrite h; apply Z.le_max_r));
  destruct u1 as [u1 | | ]; simpl in Heq;
  try discriminate heq; simpl; intros e1 e2 g; simpl;
- try(intuition;fail); try discriminate;
-destruct b2 as [b2 | | ]; simpl; try(intuition;fail).
+ try(intuition1;fail); try discriminate;
+destruct b2 as [b2 | | ]; simpl; try(intuition1;fail).
 case (ext_eq u2 (cp_min b1 u2)).
 intros Heq' _;destruct b1 as [b1 | | ];destruct u2 as [u2 | | ]; simpl in Heq';
 try (assert (H' : u2 <= b1) by(injection Heq';
             intros h; rewrite h; apply Z.le_min_l));
  destruct u1 as [u1 | | ]; simpl in Heq;
  try discriminate heq; simpl; intros e1 e2 g;  simpl;
- try(intuition;fail); try discriminate;
-destruct b2 as [b2 | | ]; simpl; try(intuition;fail).
+ try(intuition1;fail); try discriminate;
+destruct b2 as [b2 | | ]; simpl; try(intuition1;fail).
 intros; discriminate.
 Qed.
 
@@ -490,11 +491,11 @@ try (assert (H' : u1 <= b2) by
  (injection Heq; intros h; rewrite h; apply Z.le_max_l));
 try (assert (H'' : ~u1 = b2)
   by (intros h; subst u1; elim Heq'; rewrite cp_max_refl; auto));
-  simpl; try (intuition; fail);
+  simpl; try (intuition1; fail);
 destruct u2 as [u2 | | ];
  try discriminate Heq; simpl; intros e1 e2 g;  simpl;
- try(intuition;fail); try discriminate;
-destruct b1 as [b1 | | ]; simpl; try(intuition;fail).
+ try(intuition1;fail); try discriminate;
+destruct b1 as [b1 | | ]; simpl; try(intuition1;fail).
 Qed.
 
 Lemma add_test_constraint_left_false_none :
@@ -509,11 +510,11 @@ try (assert (H' : u1 <= b2) by
  (injection Heq; intros h; rewrite h; apply Z.le_max_l));
 try (assert (H'' : ~u1 = b2)
   by (intros h; subst u1; elim Heq'; rewrite cp_max_refl; auto));
-  simpl; try (intuition; fail);
+  simpl; try (intuition1; fail);
 destruct u2 as [u2 | | ];
  try discriminate Heq; simpl; intros e1 e2 g;  simpl;
- try(intuition;fail); try discriminate;
-destruct b1 as [b1 | | ]; simpl; try(intuition;fail).
+ try(intuition1;fail); try discriminate;
+destruct b1 as [b1 | | ]; simpl; try(intuition1;fail).
 Qed.
 
 Lemma add_test_constraint_right_true_sound :
@@ -527,8 +528,8 @@ intros Hres; injection Hres; intro; subst v.
 intros H1 H2 H'; destruct (to_p_cp_max_min _ _ _ H1) as [H3 H4].
 destruct (to_p_cp_max_min _ _ _ H2) as [H5 H6].
 apply cp_max_min_to_p; auto.
-destruct u1 as [u1 | | ]; try (simpl; intuition;fail);
-destruct u2 as [u2 | | ]; try (simpl; intuition; fail); simpl;
+destruct u1 as [u1 | | ]; try (simpl; intuition1;fail);
+destruct u2 as [u2 | | ]; try (simpl; intuition1; fail); simpl;
  try (intros; discriminate).
 assert (x1 <= u1) by (simpl in H4; injection H4; intros H7; rewrite <- H7;
                       apply Z.le_min_r).
@@ -555,10 +556,10 @@ Proof.
 intros [b1 u1][b2 u2] v x1 x2; unfold add_test_constraint_left.
 case (ext_eq u2 (cp_min b1 u2)); intros Heq; try (intros; discriminate).
 intros Hres; injection Hres; intro; subst v.
-destruct b1 as [b1 | | ]; try (simpl; intuition;fail);
-destruct u1 as [u1 | | ]; try (simpl; intuition;fail);
-destruct b2 as [b2 | | ]; try (simpl; intuition;fail);
-destruct u2 as [u2 | | ]; try (simpl; intuition; fail); simpl;
+destruct b1 as [b1 | | ]; try (simpl; intuition1;fail);
+destruct u1 as [u1 | | ]; try (simpl; intuition1;fail);
+destruct b2 as [b2 | | ]; try (simpl; intuition1;fail);
+destruct u2 as [u2 | | ]; try (simpl; intuition1; fail); simpl;
  try (assert (b1 <> u2) by
      (intros h;subst u2; elim Heq; rewrite cp_min_refl; auto));
    try (case (Zmax_irreducible_inf (b1+1) b2);(intros; lia));
@@ -575,19 +576,19 @@ case (ext_eq b2 (cp_max u1 b2)); intros Heq.
 case (ext_eq u1 (cp_max u1 b2)); intros Heq'; try (intros; discriminate);
 intros H'; injection H'; intro ; subst v; clear H';
 destruct b1 as [b1 | | ]; destruct u1 as [u1 | | ];
- simpl; try (simpl;intuition;fail);
+ simpl; try (simpl;intuition1;fail);
 destruct b2 as [b2 | | ]; destruct u2 as [u2 | | ];
- simpl; try (simpl;intuition;fail); try (intros;discriminate);
+ simpl; try (simpl;intuition1;fail); try (intros;discriminate);
 try (case (Zmax_irreducible_inf b1 b2); intros; lia).
 intros H'; injection H'; intro; subst v; clear H'.
 destruct b1 as [b1 | | ]; destruct u1 as [u1 | | ];
- simpl; try (simpl;intuition;fail);
+ simpl; try (simpl;intuition1;fail);
 destruct b2 as [b2 | | ];
  try (assert (H': b2 <> u1)
         by (intro; elim Heq; subst b2; rewrite cp_max_refl; auto));
 destruct u2 as [u2 | | ];
  try case (Zmax_irreducible_inf b1 b2);
- simpl; try (simpl;intuition;fail); try (intros;discriminate).
+ simpl; try (simpl;intuition1;fail); try (intros;discriminate).
 Qed.
 
 
@@ -601,19 +602,19 @@ case (ext_eq b2 (cp_max u1 b2)); intros Heq.
 case (ext_eq u1 (cp_max u1 b2)); intros Heq'; try (intros; discriminate);
 intros H'; injection H'; intro ; subst v; clear H';
 destruct b1 as [b1 | | ]; destruct u1 as [u1 | | ];
- simpl; try (simpl;intuition;fail);
+ simpl; try (simpl;intuition1;fail);
 destruct b2 as [b2 | | ]; destruct u2 as [u2 | | ];
- simpl; try (simpl;intuition;fail); try (intros;discriminate);
+ simpl; try (simpl;intuition1;fail); try (intros;discriminate);
 try (case (Zmin_irreducible u1 u2); lia).
 intros H'; injection H'; intro; subst v; clear H'.
 destruct b1 as [b1 | | ]; destruct u1 as [u1 | | ];
- simpl; try (simpl;intuition;fail);
+ simpl; try (simpl;intuition1;fail);
 destruct b2 as [b2 | | ];
  try (assert (H': b2 <> u1)
         by (intro; elim Heq; subst b2; rewrite cp_max_refl; auto));
 destruct u2 as [u2 | | ];
  try case (Zmin_irreducible_inf u1 u2);
- simpl; try (simpl;intuition;fail); try (intros;discriminate).
+ simpl; try (simpl;intuition1;fail); try (intros;discriminate).
 Qed.
 
 Lemma add_test_constraint_right_true_lb :
@@ -625,7 +626,7 @@ intros [l1 | | ] [u1 | | ] [l2 | | ] [u2 | | ] l u;
   try (match goal with |- context[ext_eq ?a ?b] =>
          case (ext_eq a b); intros Heq
        end);
-  try (simpl; intros; intuition; discriminate);
+  try (simpl; intros; intuition1; discriminate);
   try (intros H'; injection H'; intros; subst l; auto;fail).
 Qed.
 
@@ -641,7 +642,7 @@ intros [l1 | | ] [u1 | | ] [l2 | | ] [u2 | | ] l u;
   try (match goal with |- context[ext_eq ?a ?b] =>
          case (ext_eq a b); intros Heq'
        end);
-  try (simpl; intros; intuition; discriminate);
+  try (simpl; intros; intuition1; discriminate);
   try (intros H'; injection H'; intros; subst l; auto;fail).
 Qed.
 
@@ -655,7 +656,7 @@ intros [l1 | | ] [u1 | | ] [l2 | | ] [u2 | | ] l u;
   try (match goal with |- context[ext_eq ?a ?b] =>
          case (ext_eq a b); intros Heq
        end);
-  try (simpl; intros; intuition; discriminate);
+  try (simpl; intros; intuition1; discriminate);
   try (intros H'; injection H'; intros; subst u; auto;fail).
 Qed.
 
@@ -671,7 +672,7 @@ intros [l1 | | ] [u1 | | ] [l2 | | ] [u2 | | ] l u;
   try (match goal with |- context[ext_eq ?a ?b] =>
          case (ext_eq a b); intros Heq'
        end);
-  try (simpl; intros; intuition; discriminate);
+  try (simpl; intros; intuition1; discriminate);
   try (intros H'; injection H'; intros; subst u; auto;fail);
   try (intros H1 H2; rewrite H2 in H1; injection H1; auto).
 Qed.
@@ -686,7 +687,7 @@ intros [l1 | | ] [u1 | | ] [l2 | | ] [u2 | | ] l u;
   try (match goal with |- context[ext_eq ?a ?b] =>
          case (ext_eq a b); intros Heq
        end);
-  try (simpl; intros; intuition; discriminate);
+  try (simpl; intros; intuition1; discriminate);
   try (intros H'; injection H'; do 2 intro; subst u; clear H');
   try (simpl; intro Hneq;
     destruct (Zmin_irreducible  u1 (u2+ -1)) as [H|H];
@@ -706,7 +707,7 @@ intros [l1 | | ] [u1 | | ] [l2 | | ] [u2 | | ] l u;
   try (match goal with |- context[ext_eq ?a ?b] =>
          case (ext_eq a b); intros Heq'
        end);
-  try (simpl; intros; intuition; discriminate);
+  try (simpl; intros; intuition1; discriminate);
   try (intros H'; injection H'; do 2 intro; subst u; clear H');
   try (simpl; intro Hneq;
     destruct (Zmax_irreducible_inf l1 l2) as [H|H];
@@ -717,7 +718,7 @@ Qed.
 
 Lemma not_cp_min_cp_max :
   forall a b, ~cp_min a b = b->cp_max a b = b.
-intros [a | | ][b | | ]; simpl; try (intuition; fail).
+intros [a | | ][b | | ]; simpl; try (intuition1; fail).
 destruct (Zle_or_lt a b).
 rewrite Z.max_comm; rewrite Zle_to_Zmax; auto.
 rewrite Z.min_comm; rewrite Zle_to_Zmin; auto with zarith.
@@ -759,13 +760,13 @@ Qed.
 
 Lemma cp_max_irreducible :
   forall a b, cp_max a b = a \/ cp_max a b = b.
-intros [a | | ][b | | ];try (intuition; fail).
+intros [a | | ][b | | ];try (intuition1; fail).
 simpl; case (Zmax_irreducible_inf a b); intros H; rewrite H; auto.
 Qed.
 
 Lemma cp_min_irreducible :
   forall a b, cp_min a b = a \/ cp_min a b = b.
-intros [a | | ][b | | ]; try (intuition;fail).
+intros [a | | ][b | | ]; try (intuition1;fail).
 simpl; case (Zmin_irreducible a b); intros H; rewrite H; auto.
 Qed.
 
@@ -817,7 +818,7 @@ intros [l1 | | ] [u1 | | ] [l2 | | ] [u2 | | ] l u;
   try (match goal with |- context[ext_eq ?a ?b] =>
          case (ext_eq a b); intros Heq
        end);
-  try (simpl; intros; intuition; discriminate);
+  try (simpl; intros; intuition1; discriminate);
   try (intros H'; injection H'; intros; subst u; auto;fail).
 Qed.
 
@@ -833,7 +834,7 @@ intros [l1 | | ] [u1 | | ] [l2 | | ] [u2 | | ] l u;
   try (match goal with |- context[ext_eq ?a ?b] =>
          case (ext_eq a b); intros Heq'
        end);
-  try (simpl; intros; intuition; discriminate);
+  try (simpl; intros; intuition1; discriminate);
   try (intros H'; injection H'; intros; subst l; auto;fail).
 Qed.
 
@@ -847,7 +848,7 @@ intros [l1 | | ] [u1 | | ] [l2 | | ] [u2 | | ] l u;
   try (match goal with |- context[ext_eq ?a ?b] =>
          case (ext_eq a b); intros Heq
        end);
-  try (simpl; intros; intuition; discriminate);
+  try (simpl; intros; intuition1; discriminate);
   try (intros H'; injection H'; intros; subst l; auto;fail).
 Qed.
 
@@ -863,7 +864,7 @@ intros [l1 | | ] [u1 | | ] [l2 | | ] [u2 | | ] l u;
   try (match goal with |- context[ext_eq ?a ?b] =>
          case (ext_eq a b); intros Heq'
        end);
-  try (simpl; intros; intuition; discriminate);
+  try (simpl; intros; intuition1; discriminate);
   try (intros H'; injection H'; intros; subst u; auto;fail).
 Qed.
 
@@ -877,7 +878,7 @@ intros [l1 | | ] [u1 | | ] [l2 | | ] [u2 | | ] l u;
   try (match goal with |- context[ext_eq ?a ?b] =>
          case (ext_eq a b); intros Heq
        end);
-  try (simpl; intros; intuition; discriminate);
+  try (simpl; intros; intuition1; discriminate);
   try (intros H'; injection H'; do 2 intro; subst l u; clear H'); simpl; auto;
  (simpl; intro Hneq;
     destruct (Zmax_irreducible_inf  (l1 + 1) l2) as [Hl1l2|Hl1l2];
@@ -896,7 +897,7 @@ intros [l1 | | ] [u1 | | ] [l2 | | ] [u2 | | ] l u;
   try (match goal with |- context[ext_eq ?a ?b] =>
          case (ext_eq a b); intros Heq'
        end);
-  try (simpl; intros; intuition; discriminate);
+  try (simpl; intros; intuition1; discriminate);
   try (intros H'; injection H'; do 2 intro; subst u l; clear H'); simpl; auto;
   (simpl; intro Hneq;
     destruct (Zmin_irreducible u1 u2) as [H|H];

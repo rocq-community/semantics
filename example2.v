@@ -1,5 +1,5 @@
-Require Import little_w_string parser ZArith List String.
-Require Import Lia.
+From Stdlib Require Import ZArith List String Lia.
+Require Import little_w_string parser.
 Open Scope Z_scope.
 Import AB A D L.
 Open Scope a_scope.

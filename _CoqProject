@@ -1,4 +1,5 @@
 -R . Semantics
+-arg "-output-directory ."
 
 abstract_i.v
 axiom.v

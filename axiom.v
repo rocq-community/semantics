@@ -1,4 +1,5 @@
-Require Import syntax little denot Bool List String ZArith.
+From Stdlib Require Import Bool List String ZArith.
+Require Import syntax little denot.
 
 Module ax(S:little_syntax).
 Module D := denot.denot(S).
