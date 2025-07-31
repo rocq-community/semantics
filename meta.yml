@@ -62,7 +62,7 @@ dependencies:
   description: |-
     [ocamlbuild](https://github.com/ocaml/ocamlbuild)
 
-tested_coq_opam_versions:
+tested_rocq_opam_versions:
 - version: '9.0'
 - version: 'dev'
 
