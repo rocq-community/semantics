@@ -10,8 +10,8 @@ Follow the instructions on https://github.com/coq-community/templates to regener
 [![Zulip][zulip-shield]][zulip-link]
 [![DOI][doi-shield]][doi-link]
 
-[docker-action-shield]: https://github.com/coq-community/semantics/workflows/Docker%20CI/badge.svg?branch=master
-[docker-action-link]: https://github.com/coq-community/semantics/actions?query=workflow:"Docker%20CI"
+[docker-action-shield]: https://github.com/coq-community/semantics/actions/workflows/docker-action.yml/badge.svg?branch=master
+[docker-action-link]: https://github.com/coq-community/semantics/actions/workflows/docker-action.yml
 
 [contributing-shield]: https://img.shields.io/badge/contributions-welcome-%23f7931e.svg
 [contributing-link]: https://github.com/coq-community/manifesto/blob/master/CONTRIBUTING.md
@@ -36,19 +36,23 @@ and connected to a yacc-based parser, thanks to the use of a functor
 parameterized by a module type of strings.  A hand-written parser is
 also provided in Coq, but there are no proofs associated.
 
+The current version is only compatible with a recent version of Rocq
+(tested with version 9.0) but previous versions of this repository
+worked with older version of Coq
+
 
 ## Meta
 
 - Author(s):
   - Yves Bertot (initial)
-- Coq-community maintainer(s):
+- Rocq-community maintainer(s):
   - Kartik Singhal ([**@k4rtik**](https://github.com/k4rtik))
 - License: [MIT License](LICENSE)
-- Compatible Coq versions: 8.10 or later
+- Compatible Rocq/Coq versions: 9.0 or later
 - Additional dependencies:
   - [num](https://opam.ocaml.org/packages/num/)
   - [ocamlbuild](https://github.com/ocaml/ocamlbuild)
-- Coq namespace: `Semantics`
+- Rocq/Coq namespace: `Semantics`
 - Related publication(s):
   - [Theorem proving support in programming language semantics](https://hal.inria.fr/inria-00160309) doi:[10.1017/CBO9780511770524.016](https://doi.org/10.1017/CBO9780511770524.016)
 

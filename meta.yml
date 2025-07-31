@@ -22,6 +22,10 @@ description: |
   parameterized by a module type of strings.  A hand-written parser is
   also provided in Coq, but there are no proofs associated.
 
+  The current version is only compatible with a recent version of Rocq
+  (tested with version 9.0) but previous versions of this repository
+  worked with older version of Coq
+
 doi: 10.1017/CBO9780511770524.016
 
 publications:
@@ -44,8 +48,8 @@ license:
   identifier: MIT
 
 supported_coq_versions:
-  text: 8.10 or later
-  opam: '{>= "8.10"}'
+  text: 9.0 or later
+  opam: '{>= "9.0"}'
 
 dependencies:
 - opam:
@@ -59,11 +63,7 @@ dependencies:
     [ocamlbuild](https://github.com/ocaml/ocamlbuild)
 
 tested_coq_opam_versions:
-- version: '8.10'
-- version: '8.11'
-- version: '8.12'
-- version: '8.13'
-- version: '8.14'
+- version: '9.0'
 - version: 'dev'
 
 keywords:

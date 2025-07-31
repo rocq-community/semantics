@@ -21,12 +21,16 @@ available for proof by reflection, and the code can also be extracted
 and connected to a yacc-based parser, thanks to the use of a functor
 parameterized by a module type of strings.  A hand-written parser is
 also provided in Coq, but there are no proofs associated.
+
+The current version is only compatible with a recent version of Rocq
+(tested with version 9.0) but previous versions of this repository
+worked with older version of Coq
 """
 
 build: [make "-j%{jobs}%"]
 install: [make "install"]
 depends: [
-  "coq" {>= "8.10"}
+  "coq" {>= "9.0"}
   "num" 
   "ocamlbuild" {build}
 ]

@@ -17,19 +17,16 @@ jobs:
     strategy:
       matrix:
         image:
-          - 'coqorg/coq:8.10'
-          - 'coqorg/coq:8.11'
-          - 'coqorg/coq:8.12'
-          - 'coqorg/coq:8.13'
-          - 'coqorg/coq:8.14'
+          - 'coqorg/coq:9.0'
           - 'coqorg/coq:dev'
       fail-fast: false
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: coq-community/docker-coq-action@v1
         with:
           opam_file: 'coq-semantics.opam'
           custom_image: ${{ matrix.image }}
+
 
 # See also:
 # https://github.com/coq-community/docker-coq-action#readme
