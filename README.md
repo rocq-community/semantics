@@ -66,9 +66,19 @@ opam repo add coq-released https://coq.inria.fr/opam/released
 opam install coq-semantics
 ```
 
-To instead build and install manually, do:
+To instead build and install manually, you may encounter difficulties making
+sure that all dependencies for the compilation are present.  The dependencies
+are already declared in the `opam` package description, so it is better
+to rely on `opam` to compile dependencies with the following two lines:
 
-``` shell
+```shell
+opam repo add coq-released https://coq.inria.fr/opam/released
+opam install --deps-only coq-semantics
+```
+
+You can then download the source and compile them as follows:
+
+```shell
 git clone https://github.com/coq-community/semantics.git
 cd semantics
 make   # or make -j <number-of-cores-on-your-machine> 
