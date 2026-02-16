@@ -50,21 +50,7 @@ worked with older version of Rocq and Coq
 - License: [MIT License](LICENSE)
 - Compatible Rocq/Coq versions: 9.0 or later
 - Additional dependencies:
-  - This is a survey of programming language semantics styles
-for a miniature example of a programming language, with their encoding
-in Rocq (Coq), the proofs of equivalence of different styles, and the proof
-of soundess of tools obtained from axiomatic semantics or abstract
-interpretation.  The tools can be run inside Rocq, thus making them
-available for proof by reflection, and the code can also be extracted
-and connected to a yacc-based parser, thanks to the use of a functor
-parameterized by a module type of strings.  A hand-written parser is
-also provided in Rocq, but there are no proofs associated.
-
-The current version is only compatible with a recent version of Rocq
-(tested with versions 9.0 to 9.1) but previous versions of this repository
-worked with older version of Rocq and Coq
-
-  - [num](https://opam.ocaml.org/packages/num/)
+  - [rocq-stdlib] (https://github.com/rocq-prover/stdlib)
   - [ocamlbuild](https://github.com/ocaml/ocamlbuild)
 - Rocq/Coq namespace: `Semantics`
 - Related publication(s):
@@ -77,11 +63,11 @@ is via [OPAM](https://opam.ocaml.org/doc/Install.html):
 
 ```shell
 opam repo add rocq-released https://rocq-prover.org/opam/released
-opam install coq-semantics
+opam install rocq-semantics
 ```
 
 To instead build and install manually, you need to make sure that all the
-libraries this development depends on are installed.  This easiest to do that
+libraries this development depends on are installed.  The easiest way to do that
 is still to rely on opam:
 
 ``` shell

@@ -17,14 +17,13 @@ jobs:
     strategy:
       matrix:
         image:
-          - 'rocq/rocq-prover:9.0'
           - 'rocq/rocq-prover:dev'
       fail-fast: false
     steps:
       - uses: actions/checkout@v4
       - uses: coq-community/docker-coq-action@v1
         with:
-          opam_file: 'coq-semantics.opam'
+          opam_file: 'rocq-semantics.opam'
           custom_image: ${{ matrix.image }}
 
 

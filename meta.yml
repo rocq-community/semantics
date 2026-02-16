@@ -1,7 +1,7 @@
 ---
 fullname: Semantics
 shortname: semantics
-opam_name: coq-semantics
+opam_name: rocq-semantics
 namespace: Semantics
 organization: coq-community
 community: true
@@ -55,10 +55,9 @@ supported_coq_versions:
 dependencies:
 - opam:
     name: rocq-stdlib
-- opam:
-    name: zarith
+    version: '{>= "9.0"}'
   description: |-
-    [num](https://opam.ocaml.org/packages/num/)
+    [rocq-stdlib] (https://github.com/rocq-prover/stdlib)
 - opam:
     name: ocamlbuild
     version: '{build}'
@@ -66,8 +65,7 @@ dependencies:
     [ocamlbuild](https://github.com/ocaml/ocamlbuild)
 
 tested_rocq_opam_versions:
-- version: '9.0'
-- version: 'dev'
+  version: 'dev'
 
 keywords:
 - name: natural semantics
