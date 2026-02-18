@@ -60,14 +60,14 @@ Notation "'IF x 'THEN a 'ELSE b" :=
    (ifthenelse _ x a b) (at level 200).
 
 Theorem ifthenelse_continuous :
-  forall (A:Type) t F G,
-     continuous (f_order' A) (f_order' A) F ->
-     continuous (f_order' A) (f_order' A) G ->
-     continuous (f_order' A) (f_order' A)
+  forall (A B:Type) t F G,
+     continuous (f_order A B) (f_order' B) F ->
+     continuous (f_order A B) (f_order' B) G ->
+     continuous (f_order A B) (f_order' B)
        (fun f x => 'IF (t x) 'THEN (F f x) 'ELSE (G f x)).
 Proof.
-intros A t F G HF HG c Hc l Hl.
-apply (lift_lub A (option A) (@option_cpo A)).
+intros A B t F G HF HG c Hc l Hl.
+apply lift_lub.
 intros x; destruct (t x) as [[ | ] | ]; simpl.
 apply lub_lift_reverse with (l := F l)(c:= fun n => F (c n));
  apply HF; auto.
