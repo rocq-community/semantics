@@ -86,7 +86,7 @@ Definition is_digit (a:ascii) : bool :=
   end.
 
 Fact example_is_digit : is_digit "8" = true.
-Proof refl_equal true.
+Proof. exact (refl_equal true). Qed.
 
 Definition is_alpha (a:ascii) : bool :=
   match Z.compare (Z_of_ascii a) (Z_of_ascii "A"%char) with

@@ -5,6 +5,7 @@ Require Export function_cpo.
 
 Theorem lub_cst :
   forall (A:Type)(R:A->A->Prop)(a:A),(forall x, R x x)->lub R a (fun n=>a).
+Proof.
 intros A R a Hrefl.
 split.
 intros n; apply Hrefl.
@@ -15,6 +16,7 @@ Qed.
 Theorem continuous_cst :
   forall (A B:Type)(R:A->A->Prop)(R':B->B->Prop)(b:B),
   reflexive R' -> continuous R R' (fun x:A => b).
+Proof.
 intros A B R R' b Hrefl c Hch l Hlub.
 apply lub_cst; auto.
 Qed.
@@ -30,6 +32,7 @@ Arguments comp_right : default implicits.
 Theorem comp_right_continuous :
   forall (A:Type)(f:A->option A),
      continuous (f_order' A)(f_order' A)(comp_right f).
+Proof.
 intros A f c Hc l [Hu Hl].
 split.
 intros n x; unfold comp_right; case (f x);
@@ -57,7 +60,7 @@ Definition ifthenelse (A:Type)(t:option bool)(v w: option A) :=
   match t with Some true => v | Some false => w | None => None end.
 
 Notation "'IF x 'THEN a 'ELSE b" :=
-   (ifthenelse _ x a b) (at level 200).
+   (ifthenelse _ x a b) (at level 10).
 
 Theorem ifthenelse_continuous :
   forall (A B:Type) t F G,

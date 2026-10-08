@@ -17,7 +17,7 @@ module Str = struct
   
   type instr = string Interp.instr0
   
-  type coq_assert = string Interp.assert0
+  type rocq_assert = string Interp.assert0
 
   type condition = string Interp.condition0
   

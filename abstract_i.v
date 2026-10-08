@@ -292,6 +292,7 @@ Definition to_a' (l:option ab_env) : assert :=
 
 Lemma lf_lz_to_a : forall g l, 
   lf' g (lz_to_a l) = l.
+Proof.
 intros g l; induction l; simpl; auto.
 rewrite IHl; auto.
 Qed.
@@ -299,11 +300,13 @@ Qed.
 Lemma f_p_lookup : forall m s l, 
    f_p m s l =
    syntax.lookup string_dec (A:=list Z->Prop) m  (fun _ => True) s l.
+Proof.
 intros m' s l; induction m'; simpl; auto.
 destruct a as [y p]; destruct (string_dec y s); auto.
 Qed.
 
 Lemma lf'_app : forall g l1 l2, lf' g (l1++l2) = lf' g l1++lf' g l2.
+Proof.
 intros g l1 l2; induction l1; simpl; auto.
 rewrite IHl1; auto.
 Qed.
@@ -312,6 +315,7 @@ Qed.
 Lemma ab_lookup_i_a_rec :
   forall e ig s g, ~str_in_list s ig=true -> i_a m g (to_a1 e ig) ->
        i_a m g (to_assert (ab_lookup e s) (avar s)).
+Proof.
 induction e; intros ig s g Hi; simpl.
 unfold ab_lookup; simpl; intros; unfold to_assert.
 generalize (to_syn_ok bot (g s)); simpl.
@@ -343,6 +347,7 @@ Qed.
 Lemma ab_eval_i_a :
   forall e a g, i_a Ab.m g (to_a e) ->
       i_a Ab.m g (to_assert (ab_eval (ab_lookup e) a) a).
+Proof.
 intros e a g Hyp; induction a; simpl.
  apply ab_lookup_i_a; auto.
  unfold to_assert; case_eq (to_syn (of_int n));intros ps l Hts; simpl.
@@ -379,6 +384,7 @@ Lemma i_a_update_rec :
   forall m g s i e l, i_a m g (to_a1 e l) ->
     i_a m g (to_assert i (avar s)) ->
     i_a m g (to_a1 (ab_update e s i) l).
+Proof.
 intros m' g s i; induction e; simpl; intros l He Hi; auto.
 destruct a as (s1, i1'); destruct (string_dec s s1);  simpl.
 
@@ -404,6 +410,7 @@ Inductive thinner_env : ab_env -> ab_env -> Prop  :=
 Lemma thinner_env_prop_rec :
   forall l l', thinner_env l l' -> 
   forall g ig, i_a Ab.m g (to_a1 l ig) ->i_a Ab.m g (to_a1 l' ig).
+Proof.
 intros l l'; induction 1; intros g ig Hl; simpl in Hl |- *; auto.
 destruct (str_in_list s ig).
 auto.
@@ -424,10 +431,12 @@ Qed.
 Lemma thinner_env_prop :
   forall l l', thinner_env l l' -> 
   forall g, i_a Ab.m g (to_a l) ->i_a Ab.m g (to_a l').
+Proof.
 exact (fun l l' H g => thinner_env_prop_rec l l' H g nil).
 Qed.
 
 Lemma thinner_env_refl : forall l, thinner_env l l.
+Proof.
 induction l.
 constructor.
 destruct a; constructor; auto.
@@ -435,6 +444,7 @@ apply Ab.thinner_refl.
 Qed.
 
 Lemma thinner_join_right :  forall i i', Ab.thinner i (Ab.join i' i).
+Proof.
 intros; rewrite Ab.join_comm; apply Ab.thinner_join_left.
 Qed.
 
@@ -460,6 +470,7 @@ Inductive intersect_case_type (b:bexpr) : Type :=
 
 Definition intersect_case :
   forall b, intersect_case_type b.
+Proof.
 intros b; destruct b as [[ x | n1 | e e'] a2].
 eapply ict1; auto.
 destruct a2 as [ x | n2 | e2 e2'].
@@ -474,22 +485,26 @@ Defined.
 
 Lemma l_subst_app : forall l1 l2 x e',
   l_subst (l1++l2) x e' = l_subst l1 x e' ++ l_subst l2 x e'.
+Proof.
 intros l1 l2 x e'; induction l1; simpl; auto.
 rewrite IHl1; auto.
 Qed.
 
 Lemma l_subst_lz_to_a : forall l x e, l_subst (lz_to_a l) x e = lz_to_a l.
+Proof.
 intros l x e; induction l; simpl; auto.
 rewrite IHl; auto.
 Qed.
 
 Lemma subst_to_assert : forall v e x e', a_subst (to_assert v e) x e' =
      to_assert v (subst e x e').
+Proof.
 intros v e x e'; unfold to_assert; destruct (to_syn v) as [p l].
 simpl; rewrite l_subst_app; rewrite l_subst_lz_to_a; auto.
 Qed.
 
 Lemma to_assert_bot : forall e g, i_a m g (to_assert bot e).
+Proof.
 intros e g; unfold to_assert.
 case_eq (to_syn bot); intros ts l Hts; simpl.
 rewrite f_p_lookup.
@@ -518,6 +533,7 @@ Lemma i_a_ab_update_rec :
   forall m a g i e x l,
   i_a m g (to_a1 e l) -> i_a m g (to_assert i a) ->
   i_a m g (a_subst (to_a1 (ab_update e x i) l) x a).
+Proof.
 intros m' a g i e x; induction e; intros l Hyp Ha; simpl; auto.
 rewrite subst_to_assert; simpl; auto.
 destruct a0.
@@ -559,6 +575,7 @@ Qed.
 
 Lemma abstract_i_pre_condition :
   forall i e p, pc (fst (abstract_i i e)) p = (to_a e).
+Proof.
 induction i; intros e p; simpl; auto.
 assert (IHi1' := IHi1 e); destruct (abstract_i i1 e) as [i'1 [e' |]];
  simpl in IHi1' |- *; auto.
@@ -594,41 +611,49 @@ Arguments compatible : default implicits.
 
 Lemma thinner_compatible :
    forall l1 l2, thinner_env l1 l2 -> compatible l1 l2.
+Proof.
 induction 1; try constructor; auto.
 Qed.
 
 Lemma compatible_widen :  forall l l', compatible l (widen l l').
+Proof.
 induction l; simpl; try constructor.
 intros l'; destruct a as [s v]; constructor; auto.
 Qed.
 
 Lemma compatible_widen2 :
   forall l, compatible l (widen2 l).
+Proof.
 induction l; try destruct a; simpl; try constructor; auto.
 Qed.
 
 Lemma compatible_thinner_widen2 :
    forall l l', compatible l l' -> thinner_env l (widen2 l').
+Proof.
 induction 1; simpl; try constructor; auto.
 apply Ab.thinner_bot.
 Qed.
 
 Lemma compatible_refl : forall A l, @compatible A l l.
+Proof.
 induction l; try destruct a; constructor; auto.
 Qed.
 
 Lemma compatible_sym : forall A l l', @compatible A l l' -> compatible l' l.
+Proof.
 induction 1; constructor; auto.
 Qed.
 
 Lemma compatible_trans : forall A l l' l'', @compatible A l l' ->
    compatible l' l'' -> compatible l l''.
+Proof.
 intros A l l' l'' H; generalize l''; clear l''; induction H; intros l'' H'; inversion H'; 
 constructor; auto.
 Qed.
 
 Lemma compatible_update :
   forall l s e, compatible l (ab_update l s e).
+Proof.
 induction l; simpl.
 intros s e; apply cc1.
 destruct a as [s0 i0]; intros s e; destruct (string_dec s s0); constructor; auto.
@@ -637,6 +662,7 @@ Qed.
 
 Lemma compatible_intersect_env :
   forall neg l b l', intersect_env neg l b = Some l' -> compatible l l'.
+Proof.
 intros neg l b; destruct (intersect_case b) as [x e Hb Hi | e x Hb _ Hi | e1 e2 Hb H1 H2 Hi].
 intros l'; rewrite Hi.
 destruct (Ab.add_test_constraint_right neg (ab_lookup l x)
@@ -653,6 +679,7 @@ apply compatible_refl.
 Qed.
 
 Lemma join_env_assoc : forall l l' l'', (l @@ l') @@ l'' = l @@ l' @@ l''.
+Proof.
 induction l; destruct l'; destruct l''; simpl; auto.
 destruct p; auto.
 destruct p; destruct p0; try destruct a; auto.
@@ -667,22 +694,26 @@ simpl; rewrite join_assoc; rewrite IHl; auto.
 Qed.
 
 Lemma join_env_comm : forall l l', compatible l l' ->  l @@ l' = l' @@ l.
+Proof.
 induction 1; auto.
 simpl; rewrite join_comm; rewrite IHcompatible; auto.
 Qed.
 
 Lemma join_env_involutive : forall l, l @@ l = l.
+Proof.
 induction l; simpl; auto.
 destruct a; auto; rewrite join_involutive; rewrite IHl; auto.
 Qed.
 
 Lemma compatible_join_env_left : 
   forall e e', compatible e e' -> compatible e (e @@ e').
+Proof.
 induction 1; simpl; constructor; auto.
 Qed.
 
 Lemma compatible_stable_eq :
   forall l l', compatible l l' -> stable l l' = true -> l = l'.
+Proof.
 induction 1; simpl; auto.
 destruct (string_dec s s); try (intuition; fail).
 case_eq (Ab.eq a1 a2); simpl; try (intros; discriminate).
@@ -691,6 +722,7 @@ rewrite Ab.eq_sound with (1:=Hcmp); auto.
 Qed.
 
 Lemma stable_refl : forall l, stable l l = true.
+Proof.
 induction l; simpl; auto.
 destruct a; simpl.
 rewrite eq_complete; auto.
@@ -700,6 +732,7 @@ Lemma fp1_compatible :
   forall f e l1 b i1 i' l2, (forall l l', snd (f l) = Some l' -> compatible l l') ->
   compatible e l1 ->
   fp1 e l1 b i1 f = (i', Some l2) -> compatible e l1 -> compatible e l2.
+Proof.
 intros f e l1 b i1 i' l2 Hf Hcel1; unfold fp1.
 case_eq (intersect_env true l1 b); [intros l' Hi | intros Hi].
 case_eq (f l'); intros a_i [l'' | ] Hfl' Heq.
@@ -717,6 +750,7 @@ Qed.
 Lemma fp2_compatible :
   forall f e l1 b i1 i2 l2, (forall l l', snd (f l) = Some l' -> compatible l l') ->
   fp2 e l1 b i1 f = found i2 (Some l2) -> compatible e l1 -> compatible e l2.
+Proof.
 intros f e l1 b i1 i2 l2 Hf; unfold fp2.
 case_eq (fp1 e l1 b i1 f); intros a_i [l' | ] Hfp1.
 case_eq (fp1 e l' b i1 f); intros a_i' [l'' | ] Hfp1'.
@@ -731,6 +765,7 @@ Qed.
 Lemma fp2_compatible2 :
   forall f e l1 b i1 l2, (forall l l', snd (f l) = Some l' -> compatible l l') ->
   fp2 e l1 b i1 f = cont l2 -> compatible e l1 -> compatible e l2.
+Proof.
 intros f e l1 b i1 l2 Hf; unfold fp2.
 case_eq (fp1 e l1 b i1 f); intros i' [l' | ] Hfp1.
 case_eq (fp1 e l' b i1 f); intros a_i' [l'' | ] Hfp1'.
@@ -749,6 +784,7 @@ Lemma fp_compatible :
    (forall e e', snd(f e) = Some e' -> compatible e e') ->
    fp e b i f = (i', Some l') ->
    compatible e l'.
+Proof.
 intros e b i f i' l' Hf.
 unfold fp.
 case_eq (fp2 e e b i f); [intros a_i [l1 | ] Hfp2 Heq | intros l1 Hfp2].
@@ -770,6 +806,7 @@ Qed.
 
 Lemma abstract_i_compatible :
   forall i e e', snd(abstract_i i e) = Some e' -> compatible e e'.
+Proof.
 induction i; simpl; intros e e'.
 
 intros Heq; injection Heq; intro; subst e'; apply compatible_update.
@@ -796,6 +833,7 @@ Lemma to_a1_to_a_lookup :
   forall e g s l, i_a Ab.m g (to_a1 e l) ->
     str_in_list s l = false ->
     i_a Ab.m g (to_assert (ab_lookup e s)(avar s)).
+Proof.
 induction e.
 simpl.
 intros; apply to_assert_bot. 
@@ -958,6 +996,7 @@ Arguments fpw : default implicits.
 
 Lemma subst_fpw :
   forall g s e' e, af' g (subst e s e') = af' (fpw g s (af' g e')) e.
+Proof.
 intros g x e' e; induction e; simpl; auto.
 unfold fpw; destruct (string_dec x s); auto.
 rewrite IHe1; rewrite IHe2; auto.
@@ -965,12 +1004,14 @@ Qed.
 
 Lemma l_subst_fpw :
   forall g s e l,  lf' g (l_subst l s e) = lf' (fpw g s (af' g e)) l.
+Proof.
 intros g s e l; induction l; simpl; auto.
 rewrite subst_fpw; rewrite IHl; auto.
 Qed.
 
 Lemma a_subst_fpw :
   forall m a x e g, i_a m g (a_subst a x e) = i_a m (fpw g x (af' g e)) a.
+Proof.
 intros m' a x e g; induction a; simpl.
 destruct b as [e1 e2]; simpl.
 do 2 rewrite subst_fpw; auto.
@@ -987,6 +1028,7 @@ Lemma precondition_shift :
   forall m i a a', 
     (forall g, i_a m g a -> i_a m g a') ->
     forall g, i_a m g (pc i a)-> i_a m g (pc i a').
+Proof.
 intros m'; induction i; simpl; auto.
 intros a a' Haa' g; repeat rewrite a_subst_fpw.
 apply Haa'.
@@ -996,6 +1038,7 @@ Qed.
 
 Lemma thinner_join_env_left :
   forall e e', compatible e e' -> thinner_env e (e @@ e').
+Proof.
 intros e e' H; induction H; simpl.
 apply cte1.
 apply cte2; auto.
@@ -1004,6 +1047,7 @@ Qed.
 
 Lemma thinner_join_env_right :
   forall e e', compatible e e' -> thinner_env e (e' @@ e).
+Proof.
 intros e e' H; induction H; simpl.
 apply cte1.
 apply cte2; auto.
@@ -1013,6 +1057,7 @@ Qed.
 Lemma join_env_prop_right_rec :
   forall l l' g, compatible l l' -> forall r, i_a Ab.m g (to_a1 l r) -> 
   i_a Ab.m g (to_a1 (l' @@ l) r).
+Proof.
 intros l l' g Hc; induction Hc; intros r; simpl; auto.
 destruct (str_in_list s r); simpl; auto.
 destruct (to_syn a1); intros [Ha1 Htl1].
@@ -1026,12 +1071,14 @@ Qed.
 Lemma join_env_prop_right :
   forall l l' g, compatible l l' -> i_a Ab.m g (to_a l) -> 
   i_a Ab.m g (to_a (l' @@ l)).
+Proof.
 intros l l' g Hc; exact (join_env_prop_right_rec l l' g Hc nil).
 Qed.
 
 Lemma thinner_lookup :
   forall l l' s, thinner_env l l' -> 
   Ab.thinner (ab_lookup l s)(ab_lookup l' s).
+Proof.
 induction 1; unfold ab_lookup; simpl.
 apply Ab.thinner_refl.
 destruct (string_dec s0 s); auto.
@@ -1040,6 +1087,7 @@ Qed.
 Lemma thinner_eval :
   forall l l' a, thinner_env l l' ->
   Ab.thinner (ab_eval (ab_lookup l) a)(ab_eval (ab_lookup l') a).
+Proof.
 intros l l' a Hth; induction a; auto.
 simpl; apply thinner_lookup; auto.
 simpl; apply Ab.thinner_refl.
@@ -1050,6 +1098,7 @@ Lemma thinner_update :
   forall l l' s i1 i2,
   thinner_env l l' -> Ab.thinner i1 i2 ->
   thinner_env (ab_update l s i1) (ab_update l' s i2).
+Proof.
 intros l l' s i1 i2 Hte Hth; induction Hte.
 simpl; apply cte1.
 simpl.
@@ -1059,6 +1108,7 @@ Qed.
 Lemma thinner_join_env :  forall e1 e2 e3 e4,
   compatible e1 e3 -> thinner_env e1 e2 -> thinner_env e3 e4 ->
   thinner_env (e1 @@ e3)(e2 @@ e4).
+Proof.
 intros e1 e2 e3 e4 Hc H; generalize e3 e4 Hc; clear e3 e4 Hc.
 induction H; simpl.
 intros e3 e4 Hc; inversion Hc; intros Ht3; inversion Ht3; apply cte1.
@@ -1069,6 +1119,7 @@ Qed.
 Lemma intersect_env_true_none :
    forall l b, intersect_env true l b = None ->
    forall g, i_a Ab.m g (to_a l) -> ~bf' g b.
+Proof.
 intros l b; destruct (intersect_case b) as
   [x e Hb Hi | e x Hb _ Hi | e1 e2 Hb H1 H2 Hi].
 rewrite Hi.
@@ -1102,6 +1153,7 @@ Lemma fp1_precondition :
   fp1 e l b i1 (abstract_i i2) = (i3, Some l') ->
   forall g, i_a Ab.m g (a_conj (a_b b)(to_a l)) ->
   i_a Ab.m g (pc i3 (to_a l')).
+Proof.
 intros e l b i1 i2 i3 l' Hcel.
 unfold fp1.
 case_eq (intersect_env true l b).
@@ -1136,6 +1188,7 @@ case (intersect_env_true_none l b Hi g); auto.
 Qed.
 
 Lemma widen2_top_rec : forall e l g, i_a Ab.m g (to_a1 (widen2 e) l).
+Proof.
 induction e; intros l g; simpl.
 i_a_to_to_p.
 apply Ab.bot_semantics.
@@ -1147,6 +1200,7 @@ apply Ab.bot_semantics.
 Qed.
 
 Lemma widen2_top : forall e g, i_a Ab.m g (to_a (widen2 e)).
+Proof.
 intros e; exact (widen2_top_rec e nil).
 Qed.
 
@@ -1156,6 +1210,7 @@ Lemma fp2_precondition1 :
    fp2 e l b i1 (abstract_i i2) = found i' (Some l') ->
    forall g, i_a Ab.m g (a_conj (a_b b)(to_a l')) ->
     i_a Ab.m g (pc i' (to_a l')).
+Proof.
 intros e l b i1 i2 i' l' Hcel.
 unfold fp2.
 case_eq (fp1 e l b i1 (abstract_i i2)); intros i3 [l'1 | ] Hfp1.
@@ -1181,6 +1236,7 @@ Lemma fp_precondition :
   forall e b i1 i2 i3 l', fp e b i1 (abstract_i i2) =(i3, Some l') ->
    forall g, i_a Ab.m g (a_conj (a_b b) (to_a l')) -> 
    i_a Ab.m g (pc i3 (to_a l')).
+Proof.
 intros e b i1 i2 i3 l'.
 unfold fp.
 case_eq (fp2 e e b i1 (abstract_i i2));
@@ -1212,6 +1268,7 @@ Lemma intersect_env_true_accept :
   forall l l', thinner_env l l' ->
   forall b l1, intersect_env true l b = Some l1 ->
   exists l1', intersect_env true l' b = Some l1' /\ thinner_env l1 l1'.
+Proof.
 intros l l' H b l1.
 destruct (intersect_case b) as
   [x e Hb Hi | e x Hb Hn Hi | a1 a2 Hb Hn1 Hn2 Hi].
@@ -1266,6 +1323,7 @@ Lemma intersect_env_false_accept :
   forall l l', thinner_env l l' ->
   forall b l1, intersect_env false l b = Some l1 ->
   exists l1', intersect_env false l' b = Some l1' /\ thinner_env l1 l1'.
+Proof.
 intros l l' H b l1.
 destruct (intersect_case b) as
   [x e Hb Hi | e x Hb Hn Hi | a1 a2 Hb Hn1 Hn2 Hi].
@@ -1321,6 +1379,7 @@ Lemma thinner_intersect_env_false1 :
     intersect_env false e b = Some e1 ->
     intersect_env false e' b = Some e1' ->
        thinner_env e1 e1'.
+Proof.
 intros e e' b e1 e1' Ht Hi1.
 destruct (intersect_env_false_accept e e' Ht b e1 Hi1) as [x [Hx Htx]].
 rewrite Hx; intros He1'; injection He1'; intros; subst x; auto.
@@ -1332,6 +1391,7 @@ Lemma fp1_thinner :
     (forall e e', snd (f e) = Some e' -> compatible e e') ->
     forall e e' b i1 i3 l', thinner_env e e' ->
       fp1 e e' b i1 f = (i3, Some l') -> thinner_env e l'.
+Proof.
 intros f Hf e e' b i1 i3 l' Hte'; unfold fp1.
 assert (Hce' : compatible e e') by (apply thinner_compatible; auto).
 case_eq (intersect_env true e' b); [intros l'0 Hie | idtac].
@@ -1350,6 +1410,7 @@ Qed.
 
 Lemma thinner_widen2 :
   forall l, thinner_env l (widen2 l).
+Proof.
 induction l.
 apply cte1.
 destruct a as [s p]; simpl; apply cte2.
@@ -1359,6 +1420,7 @@ Qed.
 
 Lemma thinner_env_trans :
   forall x y z, thinner_env x y -> thinner_env y z -> thinner_env x z.
+Proof.
 intros x y z H; generalize z; clear z; induction H; intros z Hz; inversion Hz.
 constructor.
 constructor; auto.
@@ -1372,6 +1434,7 @@ Lemma fp2_thinner :
   forall e e' b i1 i' e'', thinner_env e e' ->
   fp2 e e' b i1 f = found i' (Some e'') ->
   thinner_env e e''.
+Proof.
 intros f Hf e e' b i1 i' e'' Hte'.
 unfold fp2.
 case_eq (fp1 e e' b i1 f); intros i'0 [l' | ] Hfp.
@@ -1387,6 +1450,7 @@ Qed.
 
 Lemma thinner_widen :
   forall l l', thinner_env l (widen l l').
+Proof.
 induction l; intros l'.
 simpl; constructor.
 destruct a as [s v]; simpl.
@@ -1400,6 +1464,7 @@ Lemma fp2_cont_thinner :
   forall e e' b i1 e'', thinner_env e e' ->
   fp2 e e' b i1 f = cont e'' ->
   thinner_env e e''.
+Proof.
 intros f Hf e e' b i1 e'' Hte'.
 unfold fp2.
 case_eq (fp1 e e' b i1 f); intros i'0 [l' | ] Hfp.
@@ -1419,6 +1484,7 @@ Lemma fp_thinner :
   forall f,
     (forall e e', snd (f e) = Some e' -> compatible e e') ->
   forall e b i1 i3 l', fp e b i1 f = (i3,Some l') -> thinner_env e l'.
+Proof.
 intros f Hf e b i1 i3 l'.
 unfold fp.
 case_eq (fp2 e e b i1 f); 
@@ -1444,6 +1510,7 @@ rewrite Hfp1 in Hfp''; discriminate.
 Qed.
 
 Lemma join_widen2 : forall e e', compatible e e' -> (widen2 e) @@ e' = widen2 e.
+Proof.
 induction 1; try (simpl; auto; fail).
 unfold widen2, join_env; fold widen2; fold join_env;  rewrite IHcompatible.
 rewrite Ab.join_comm; rewrite Ab.join_bot; auto.
@@ -1454,6 +1521,7 @@ Lemma fp1_abstract_i_body_accept:
   fp1 e l b i1 f = (i', Some l') ->
   intersect_env true l b = Some l'' ->
   exists l''', f l'' = (i', Some l''').
+Proof.
 intros f e l b i1 i' l' l''.
 unfold fp1.
 destruct (intersect_env true l b) as [l1 | ].
@@ -1469,6 +1537,7 @@ Lemma fp2_abstract_i_body_accept :
       fp2 e l b i1 f = found i' (Some l') ->
       intersect_env true l' b = Some l'' ->
      exists l''', f l'' = (i', Some l''').
+Proof.
 intros f e l b i1 i' l' l''; unfold fp2.
 case_eq (fp1 e l b i1 f); intros a_i [l1 | ] Hfp1.
 case_eq (fp1 e l1 b i1 f); intros a_i2 [l2 | ] Hfp2.
@@ -1485,6 +1554,7 @@ Lemma fp_abstract_i_body_accept :
   forall e b i1 i2 i3 l' l'', fp e b i1 (abstract_i i2) = (i3, Some l') ->
   intersect_env true l' b = Some l'' ->
   exists l''', abstract_i i2 l'' = (i3, Some l''').
+Proof.
 intros e b i1 i2 i3 l' l''.
 unfold fp.
 case_eq (fp2 e e b i1 (abstract_i i2)); [intros a_i l1 Hfp2 | intros l1 Hfp2].
@@ -1508,6 +1578,7 @@ Lemma fp1_abstract_i_body_imp_invariant :
  f l1 = (i3, Some l3) ->
  fp1 e l b i1 f = (i2, Some l2) ->
  thinner_env l3 l2.
+Proof.
 intros e l b i1 f i2 i3 l1 l2 l3 Hfc Hcel Hi Hf.
 unfold fp1; rewrite Hi; rewrite Hf.
 assert (compatible l l1) by (apply compatible_intersect_env with true b; auto).
@@ -1531,6 +1602,7 @@ Lemma fp2_abstract_i_body_imp_invariant :
   intersect_env true l' b = Some l'' ->
   f l'' = (i4, Some l''') ->
   thinner_env l''' l'.
+Proof.
 intros e e' b i1 i3 i4 l' l'' l''' f Hf Hcee'.
 unfold fp2.
 case_eq (fp1 e e' b i1 f); intros i' [l1 | ] Hfp1.
@@ -1559,6 +1631,7 @@ Lemma fp_abstract_i_body_imp_invariant :
   fp e b i1 f = (i3,Some l') ->
   f l'' = (i4, Some l''') ->
   thinner_env l''' l'.
+Proof.
 intros e b i1 i3 i4 l' l'' l''' f Hf Hi.
 unfold fp.
 case_eq (fp2 e e b i1 f); 
@@ -1627,6 +1700,7 @@ Lemma thinner_env_to_a1 :
   forall l1 l2, thinner_env l1 l2 ->
   forall g l, i_a Ab.m g (to_a1 l1 l) ->
     i_a Ab.m g (to_a1 l2 l).
+Proof.
 induction 1; intros g l;  simpl.
 auto.
 case (str_in_list s l).
@@ -1642,12 +1716,14 @@ Lemma thinner_env_to_a :
   forall l1 l2, thinner_env l1 l2 ->
   forall g, i_a Ab.m g (to_a l1) ->
    i_a Ab.m g (to_a l2).
+Proof.
 intros l1 l2 Ht g; apply (thinner_env_to_a1 l1 l2 Ht g nil).
 Qed.
 
 Lemma fp_monotonic_entry :
   forall g e b i1 i2 i3 l, fp e b i1 (abstract_i i2) = (i3, Some l) ->
   i_a Ab.m g (to_a e) -> i_a Ab.m g (to_a l).
+Proof.
 intros g e b i1 i2 i3 l H.
 apply thinner_env_to_a.
 apply fp_thinner with (f:= abstract_i i2) (2:=H).
@@ -1655,11 +1731,13 @@ exact (abstract_i_compatible i2).
 Qed.
 
 Lemma mark_pc : forall i, pc (mark i) false_assert = false_assert.
+Proof.
 induction i; simpl; auto.
 rewrite IHi2; auto.
 Qed.
 
 Lemma mark_sound : forall i g, i_lc Ab.m g (vcg (mark i) false_assert).
+Proof.
 intros i g; induction i; simpl; auto.
 rewrite mark_pc; apply app_i_lc; auto.
 rewrite mark_pc; rewrite f_p_lookup; rewrite false_top; intuition.
@@ -1670,6 +1748,7 @@ Lemma fp1_invariant_init :
       compatible e l ->
       fp1 e l b i f = (i', Some l) ->
       fp1 l l b i f = (i', Some l).
+Proof.
 intros e l b i f i' Hc; unfold fp1.
 destruct (intersect_env true l b); try (simpl; auto; fail).
 destruct (f a) as [i'' [ l'' | ]]; try (intros; discriminate).
@@ -1682,6 +1761,7 @@ Lemma fp2_invariant : forall e e' b i f l i',
      (forall e e', snd(f e) = Some e' -> compatible e e') ->
    compatible e e' -> fp2 e e' b i f = found i' (Some l) ->
    fp2 l l b i f = found i' (Some l).
+Proof.
 intros e e' b i f l i' Hf Hce'; unfold fp2.
 case_eq (fp1 e e' b i f); intros i1 l1 Heqfp1; destruct l1 as [l1 | ];
   try(intros; discriminate).
@@ -1704,6 +1784,7 @@ Qed.
 
 Lemma fp1_widen2_invariant :  forall e b i i' l, 
   fp1 (widen2 e)(widen2 e) b i (abstract_i i) = (i', Some l) -> l = widen2 e.
+Proof.
 intros e b i i' l; unfold fp1.
 case_eq (intersect_env true (widen2 e) b);
   [intros a Hinter| intros Hinter] ; simpl.
@@ -1725,11 +1806,13 @@ Lemma fp2_widen2_eq_fp1 :
   forall e b i i', 
     fp1 (widen2 e)(widen2 e) b i (abstract_i i) = (i', Some (widen2 e)) ->
     fp2 (widen2 e)(widen2 e) b i (abstract_i i) = found i' (Some(widen2 e)).
+Proof.
 intros e b i i' Hfp1; unfold fp2; repeat rewrite Hfp1; rewrite stable_refl; auto.
 Qed.
 
 Lemma fp_invariant : forall e b i i2 l', fp e b i (abstract_i i) = (i2, Some l') ->
           fp l' b i (abstract_i i) = (i2, Some l').
+Proof.
 intros e b i i2 l'; unfold fp.
 case_eq (fp2 e e b i (abstract_i i)); [intros i1 l1 | intros l1]; intros Hfp2.
 intros Heq; injection Heq; do 2 intro; subst i1 l1; clear Heq.
@@ -1753,6 +1836,7 @@ Qed.
 Lemma fp1_none_precondition : 
   forall e e' b i i' a e'', fp1 e e' b i (abstract_i i) = (i', None) ->
   intersect_env true e' b = Some e'' ->  pc i' a = to_a e''.
+Proof.
 intros e e' b i i' a e''; unfold fp1.
 destruct (intersect_env true e' b).
 case_eq (abstract_i i a0); intros i1 [l | ]; try (intros; discriminate).
@@ -1768,6 +1852,7 @@ Lemma fp1_none_start :
    forall e e' b i i2, fp1 e e' b i (abstract_i i) = (i2, None) ->
      exists e2, intersect_env true e' b = Some e2 /\
       abstract_i i e2 = (i2,None).
+Proof.
 intros e e' b i i2; unfold fp1.
 case_eq (intersect_env true e' b); [intros e2 Heq | intros; discriminate].
 exists e2; destruct (abstract_i i e2) as [i' [l' | ]]; 
@@ -1780,6 +1865,7 @@ Lemma fp2_none_start_found :
      thinner_env e e' ->
      exists l, exists e2, abstract_i i e2 = (i2, None) /\
      thinner_env e l /\ intersect_env true l b = Some e2.
+Proof.
 intros e e' b i i2; unfold fp2.
 case_eq (fp1 e e' b i (abstract_i i)); intros i' [l' | ] Hfp1.
 case_eq (fp1 e l' b i (abstract_i i)); intros i'' [l'' | ] Hfp1_2.
@@ -1801,6 +1887,7 @@ Lemma fp_none_start :
     exists e', exists e2, 
      abstract_i i e2 = (i2,None) /\ thinner_env e e' /\
      intersect_env true e' b = Some e2.
+Proof.
 intros e b i i2; unfold fp.
 case_eq (fp2 e e b i (abstract_i i));
   [intros i' [l' | ] Hfp2 Heq| intros e' Hfp2];
@@ -1831,6 +1918,7 @@ Qed.
 
 Theorem abstract_i_sound : forall i e i' e', 
   abstract_i i e = (i', e') -> forall g, i_lc m  g (vcg i' (to_a' e')).
+Proof.
 induction i.
 simpl; intros e i' e' Heq; injection Heq; intros; subst i' e'; simpl; split; auto.
 intros Hyp; apply i_a_ab_update; auto.
@@ -2049,12 +2137,14 @@ Lemma to_syn_ok :
   forall v x s l p, to_syn v = (s,l) -> 
     syntax.lookup string_dec m (fun l => True) s = p ->
     to_p v x = p (l++x::nil).
+Proof.
 unfold to_syn, m; intros [[lb | | ][ub | | ]] x  s l p H; injection H; intros Hl Hs;
  subst s l; simpl; repeat decide_strings; intros Hp; subst p; simpl; auto.
 Qed.
 
 Lemma false_top : forall l,
     syntax.lookup string_dec m (fun l => True) false_cst l = False.
+Proof.
 unfold m; simpl; repeat decide_strings; auto.
 Qed.
 

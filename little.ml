@@ -7,9 +7,9 @@ open Str
 (* Recuperating the certified code from the file Interp. *)
 (* Str_little.Str is a module providing the string operations, based on
    ocaml native strings. *)
-module D = Interp.Coq_denot(Str_little.Str)
-module A = Interp.Coq_ax(Str_little.Str)
-module B = Interp.Coq_ab(Str_little.Str)
+module D = Interp.Rocq_denot(Str_little.Str)
+module A = Interp.Rocq_ax(Str_little.Str)
+module B = Interp.Rocq_ab(Str_little.Str)
 open B
 open A
 open D

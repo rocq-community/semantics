@@ -31,6 +31,7 @@ Qed.
 Scheme lt_ind2 := Induction for lt_i Sort Prop.
 
 Theorem lt_irrefl : forall x, ~lt x x.
+Proof.
 assert (Hin : forall x y, lt x y -> x = between_cst \/ x = false_cst \/
                            x = ge_cst \/ x = le_cst)
  by (intros x y H; elim H; auto).

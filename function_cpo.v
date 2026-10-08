@@ -40,6 +40,7 @@ Definition chain (f:nat->A) := forall n, R (f n)(f (S n)).
 Lemma chain_le :
   transitive R -> reflexive R ->
   forall f x y, chain f -> x <= y -> R (f x) (f y).
+Proof.
 intros Ht Hr f x y Hc H; induction H; eauto.
 Qed.
 
@@ -88,6 +89,7 @@ Lemma continuous_reverse :
   forall (l:A), lub R l c ->
   forall (l':B), lub R' l' (fun n => f (c n)) ->
    l' = f l.
+Proof.
 intros f c Ha Hch Hct l Hlub l' Hlub'.
 assert (Hlub2 : lub R' (f l)(fun n => f (c n))).
 exact (Hct c Hch l Hlub).
@@ -113,10 +115,12 @@ Fixpoint iter (k:nat)(x:A) : A :=
   match k with 0 => x | S p => f (iter p x) end.
 
 Lemma f_monotonic : monotonic R R f.
+Proof.
 apply continuous_imp_monotonic; auto.
 Qed.
 
 Lemma Hchain_iter_f_bot : chain R (fun n => iter n bot).
+Proof.
 unfold chain. induction n.
 simpl. apply Hb.
 apply (f_monotonic (iter n bot) (iter (S n) bot)). assumption.
@@ -126,6 +130,7 @@ Lemma phi_ub_iter_add_f :
    forall phi : A,
        upper_bound R phi (fun n => iter n bot) ->
        upper_bound R phi (fun n => f (iter n bot)).
+Proof.
 intros phi Hup p; apply (Hup (S p)).
 Qed.
 
@@ -133,6 +138,7 @@ Lemma f_phi_upper_bound :
    forall phi : A,
        upper_bound R phi (fun n => iter n bot) ->
        upper_bound R (f phi) (fun n => iter n bot).
+Proof.
 intros phi Hup [ | p].
 apply Hb.
 apply (f_monotonic (iter p bot)); apply (Hup p).
@@ -140,6 +146,7 @@ Qed.
 
 Lemma lub_iterates_fixpoint :
    forall phi : A, lub R phi (fun n => iter n bot) -> phi = f phi.
+Proof.
 intros phi [Hub Hl]; apply Ha.
 apply Hl; apply f_phi_upper_bound; assumption.
 assert (Hfphi : lub R (f phi) (fun n => f (iter n bot))).
@@ -151,6 +158,7 @@ Qed.
 Lemma phi_less_than_fixpoint :
   forall phi : A, lub R phi (fun n => iter n bot) ->
   forall psi : A, psi = f psi -> R phi psi.
+Proof.
 intros phi [Hup Hl] psi Hfxp; apply Hl.
 intros n; induction n.
 simpl; auto.
@@ -158,6 +166,7 @@ simpl; rewrite Hfxp; apply f_monotonic; assumption.
 Qed.
 
 Theorem Tarski_least_fixpoint : exists phi: A, least_fixpoint f phi.
+Proof.
 destruct (Hc (fun n => iter n bot) Hchain_iter_f_bot) as [phi Hlub].
 exists phi.
 split.
@@ -167,6 +176,7 @@ Qed.
 
 Theorem least_fixpoint_lub_iterates :
   forall phi, least_fixpoint f phi -> lub R phi (fun n => iter n bot).
+Proof.
 intros phi Hlfp.
 destruct (Hc (fun n => iter n bot) Hchain_iter_f_bot) as [psi Hlub'].
 replace phi with psi.
@@ -191,11 +201,12 @@ Inductive option_cpo : option A -> option A -> Prop :=
 | option_cpo_refl : forall x: option A, option_cpo x x.
 
 Lemma reflexive_option_cpo : reflexive option_cpo.
-Proof option_cpo_refl.
+Proof. exact option_cpo_refl. Qed.
 
 Hint Resolve option_cpo_refl option_cpo_none_bot reflexive_option_cpo : core.
 
 Lemma antisym_option_cpo : antisymmetric option_cpo.
+Proof.
 intros x y H; inversion H.
 intros H'; inversion H'; trivial.
 trivial.
@@ -204,10 +215,12 @@ Qed.
 Lemma transitive_option_cpo_aux :
   forall (x y: option A),
    option_cpo x y -> forall z, option_cpo y z -> option_cpo x z.
+Proof.
 intros x y H; inversion H; auto.
 Qed.
 
 Lemma transitive_option_cpo :  transitive option_cpo.
+Proof.
 intros x y z H1 H2 ; apply transitive_option_cpo_aux with y ; assumption.
 Qed.
 
@@ -216,6 +229,7 @@ Hint Resolve transitive_option_cpo : core.
 Lemma chain_none_pred :
   forall f n p, chain option_cpo f ->
   p <= n -> f n = None -> f p = None.
+Proof.
 intros f n p Hch Hpn. elim Hpn. auto.
 intros m Hpm Hfmfp Hfsm. apply Hfmfp.
 assert (Hcpo : option_cpo (f m) (f (S m))) by apply Hch.
@@ -226,6 +240,7 @@ Qed.
 Theorem value_upper_bound :
   forall f x, chain option_cpo f -> f x <> None ->
   upper_bound option_cpo (f x) f.
+Proof.
 intros f x Hchain Hneq y.
 case (le_gt_dec x y); [intros Hlexy | intros Hltyx].
 assert (Hcpo: option_cpo (f x) (f y)) by (apply chain_le; auto).
@@ -235,6 +250,7 @@ Qed.
 
 Hint Resolve value_upper_bound : core.
 Theorem complete_option_cpo : complete option_cpo.
+Proof.
 intros f Hchain.
 elim (classic (forall n, f n = None)).
 intros Hn; exists (None (A:=A)).
@@ -263,12 +279,14 @@ Definition p_v  (y:A) :=
      epsilon (inhabits v) (fun w => (y=x-> w =v)/\(y<>x->w=f y)).
 
 Lemma pointwise_variant_eq : p_v x = v.
+Proof.
 unfold p_v; elim (epsilon_spec (inhabits v)(fun w => (x=x->w=v)/\(x<>x->w=f x))).
 auto.
 exists v;split;[auto|intros Habs;case Habs;trivial].
 Qed.
 
 Lemma pointwise_variant_diff : forall y, y<> x -> p_v y = f y.
+Proof.
 intros y Hn; unfold p_v;
  elim (epsilon_spec(inhabits v)(fun w =>(y=x->w=v)/\(y<>x->w=f y))).
 intuition.
@@ -293,16 +311,19 @@ Definition lift_order :=
    fun (f g:A->B)=> forall x, R (f x)(g x).
 
 Lemma reflexive_lift : reflexive lift_order.
+Proof.
 intros f x; apply Hr.
 Qed.
 
 Lemma antisymmetric_lift : antisymmetric lift_order.
+Proof.
 intros f g HfRg HgRf.
 apply extensionality with (B:= fun x:A => B).
 intros x; apply (Ha (f x) (g x)); apply (HfRg x) || apply (HgRf x).
 Qed.
 
 Lemma transitive_lift : transitive lift_order.
+Proof.
 intros f g h Hfg Hgh x; apply Ht with (g x).
 apply (Hfg x).
 apply (Hgh x).
@@ -319,6 +340,7 @@ Qed.
 
 Lemma chain_lift_reverse :
   forall c, chain lift_order c -> forall x, chain R (fun n => c n x).
+Proof.
 intros c Hch x n; apply (Hch n x).
 Qed.
 
@@ -352,18 +374,22 @@ Definition f_order (A B:Type) :=
   lift_order A (option B)(@option_cpo B).
 
 Theorem reflexive_f_order : forall A B, reflexive (f_order A B).
+Proof.
 intros A B f x; auto.
 Qed.
 
 Theorem antisymmetric_f_order : forall A B, antisymmetric (f_order A B).
+Proof.
 intros; unfold f_order; apply antisymmetric_lift; apply antisym_option_cpo.
 Qed.
 
 Theorem transitive_f_order : forall A B, transitive (f_order A B).
+Proof.
 intros; unfold f_order; apply transitive_lift; apply transitive_option_cpo.
 Qed.
 
 Theorem complete_f_order : forall A B, complete (f_order A B).
+Proof.
 intros; unfold f_order; apply lift_complete; apply complete_option_cpo.
 Qed.
 
@@ -399,6 +425,7 @@ Theorem continuous_chain :
   forall (A B:Type)(R:A->A->Prop)
      R' (f:A->B), reflexive R -> continuous R R' f ->
     forall c, chain R c -> chain R' (fun x => f (c x)).
+Proof.
 intros A B R R' f Hr Hct c Hch n;
     apply (continuous_imp_monotonic _ _ R _ _ Hr Hct (c n) (c (S n))).
 auto.
@@ -408,6 +435,7 @@ Theorem lub_some_witness1 :
    forall (A:Type) (c:nat -> option A)(v:A),
    lub (@option_cpo A) (Some v) c ->
    (exists n:nat, c n = Some v).
+Proof.
 intros A c v [Hup Hl].
 elim (classic (forall n, c n = None)).
 intros Hnone.
@@ -432,6 +460,7 @@ Theorem lub_some_witness :
    forall (A B:Type) c (a:A)(b:B)(f:A->option B), f a = Some b ->
    lub (lift_order A (option B) (option_cpo (A:=B))) f c  ->
    (exists n:nat, c n a = Some b).
+Proof.
 intros A B c a b f Heq Hlub.
 apply (lub_some_witness1 B (fun n => c n a) b).
 assert (Hlub':= lub_lift_reverse A _ (@option_cpo B) c f Hlub a).
@@ -443,6 +472,7 @@ Theorem Tarski_fix_iterates_witness :
       continuous (f_order A B)(f_order A B) f->
       forall (x:A)(v:B), Tarski_fix f x = Some v ->
     exists n, iter (A->option B) f n (fun a => None) x = Some v.
+Proof.
 intros A B f Hct x.
 assert (H:lub (f_order A B) (Tarski_fix f)
               (fun n => iter _ f n (fun a=>None))).
@@ -462,6 +492,7 @@ Theorem iterates_none_imp_fix_none :
   forall A B f,  continuous (f_order A B)(f_order A B) f-> forall x,
   (forall n, iter _ f n (fun z => None) x = None) ->
   Tarski_fix f x = None.
+Proof.
 intros A B f Hct x Happr.
 case_eq (Tarski_fix f x).
 intros v Heq;
@@ -476,18 +507,22 @@ Qed.
 Definition f_order' (A:Type) :=  f_order A A.
 
 Theorem reflexive_f_order' : forall A, reflexive (f_order' A).
+Proof.
 intros; unfold f_order'; apply reflexive_f_order.
 Qed.
 
 Theorem antisymmetric_f_order' : forall A, antisymmetric (f_order' A).
+Proof.
 intros; unfold f_order'; apply antisymmetric_f_order.
 Qed.
 
 Theorem transitive_f_order' : forall A, transitive (f_order' A).
+Proof.
 intros; unfold f_order'; apply transitive_f_order.
 Qed.
 
 Theorem complete_f_order' : forall A, complete (f_order' A).
+Proof.
 intros; unfold f_order'; apply complete_f_order.
 Qed.
 

@@ -15,6 +15,7 @@ Definition F_phi (A:Type)(t:A->option bool)(f g :A->option A) :=
 Theorem F_phi_continuous :
    forall (A : Type) t f,
        continuous (f_order A A)(f_order A A) (F_phi A t f).
+Proof.
 intros A t f; unfold F_phi;
 apply ifthenelse_continuous with (F:= comp_right f)
         (G:= fun (g:A->option A)(x:A) => Some x).
@@ -32,6 +33,7 @@ Lemma phi_terminates_n :
   forall (A:Type) (t:A->option bool)  f r r',
   phi t f r = Some r' ->
   exists n, iter _ (F_phi A t f) n (fun g => None) r = Some r'.
+Proof.
 intros A t f r r' Heq.
 assert (Hlub : lub (f_order' A) (phi t f)
                 (fun n => iter _ (F_phi A t f) n (fun x : A => None))).
@@ -46,6 +48,7 @@ Qed.
 Lemma fix_phi :
   forall (A:Type)(t:A->option bool) f,
   F_phi A t f (phi t f) = phi t f.
+Proof.
 intros A t f.
 assert (Hint : least_fixpoint (f_order' A) (F_phi A t f) (phi t f)).
 unfold phi, f_order'; apply Tarski_fix_prop; apply F_phi_continuous.
@@ -68,6 +71,7 @@ Fixpoint ds(i:instr) : env -> option env :=
 Ltac case' f := case f;[idtac|intros; discriminate].
 
 Theorem ds_sn :  forall i l l', ds i l = Some l' -> exec l i l'.
+Proof.
 induction i.
 
 intros l l'; simpl; unfold bind.
@@ -114,6 +118,7 @@ simpl; intros l l' Heq; injection Heq; intros; subst; apply SN1.
 Qed.
 
 Theorem sn_ds : forall l i l', exec l i l' -> ds i l = Some l'.
+Proof.
 induction 1.
 
 auto.
@@ -144,6 +149,7 @@ simpl; unfold f, F_phi; rewrite Ht; auto.
 Qed.
 
 Theorem ds_eq_sn : forall i l l', ds i l = Some l' <-> exec l i l'.
+Proof.
 intros; split; [apply ds_sn | apply sn_ds]; auto.
 Qed.
 

@@ -59,6 +59,7 @@ Example ex2 : forall r2 n g,
                          (a_assign "y" (aplus (avar "x")(avar "y")))))) r2 ->
   0 <= n ->
   2*(r2@g)"y"=(r2@g)"n"*((r2@g)"n"+1).
+Proof.
 parse_it; intros r2 n g Hex Hn.
 change (i_a ex_m (r2@g) (pred "pp" (avar "y"::avar "n"::nil))).
 

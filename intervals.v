@@ -43,11 +43,13 @@ Definition cp_max (n1 n2:ext_Z) : ext_Z :=
   end.
 
 Lemma Zle_to_Zmin : forall n m, n <= m -> Z.min n m = n.
+Proof.
 intros n n'; unfold Z.min, Z.le.
 case (n?=n'); intuition1.
 Qed.
 
 Lemma Zle_to_Zmax : forall n m, m <= n -> Z.max n m = n.
+Proof.
 intros n n'; unfold Z.max.
 intros Hle; cut (n >= n').
 unfold Z.ge.
@@ -59,18 +61,21 @@ Qed.
 
 Lemma cp_min_assoc :
   forall a b c, cp_min (cp_min a b) c = cp_min a (cp_min b c).
+Proof.
 intros [a | | ]; simpl; auto; intros [b | |]; simpl; auto; intros [c| |]; simpl; auto.
 rewrite Z.min_assoc; auto.
 Qed.
 
 Lemma cp_max_assoc :
   forall a b c, cp_max (cp_max a b) c = cp_max a (cp_max b c).
+Proof.
 intros [a | | ]; simpl; auto; intros [b | |]; simpl; auto; intros [c| |]; simpl; auto.
 rewrite Z.max_assoc; auto.
 Qed.
 
 Lemma cp_max_r_cp_min_l :
   forall a b, cp_max a b = b -> cp_min a b = a.
+Proof.
 intros [a | | ][b | | ]; simpl; auto.
 intros H; injection H; intros H1.
 assert (a <= b) by (rewrite <- H1; apply Z.le_max_l).
@@ -79,6 +84,7 @@ Qed.
 
 Lemma cp_min_r_cp_max_l :
   forall a b, cp_min a b = b -> cp_max a b = a.
+Proof.
 intros [a | | ][b | | ]; simpl; auto.
 intros H; injection H; intros H1.
 assert (b <= a) by (rewrite <- H1; apply Z.le_min_l).
@@ -140,6 +146,7 @@ Definition thinner (i j : ext_Z*ext_Z) : Prop :=
    cp_min bi bj = bj /\ cp_max ui uj = uj.
 
 Lemma cp_min_comm : forall i j, cp_min i j = cp_min j i.
+Proof.
 intros [ni | | ] [nj | | ];simpl; auto.
 rewrite Z.min_comm; auto.
 Qed.
@@ -152,12 +159,14 @@ rewrite Z.max_comm; auto.
 Qed.
 
 Lemma thinner_refl : forall v, thinner v v.
+Proof.
 intros [[b | | ] [u| |]]; simpl; auto;
   try rewrite Zmax_idempotent; try rewrite Zmin_idempotent; auto.
 Qed.
 
 Lemma cp_min_trans :
   forall x y z, cp_min x y = x -> cp_min y z = y -> cp_min x z = x.
+Proof.
 intros [x | | ] [y| |]; try (simpl; intros; discriminate);
 intros [z | | ]; try(simpl; intros; discriminate); simpl; auto.
 intros H1 H2; injection H1; injection H2; intros H3 H4.
@@ -169,6 +178,7 @@ Qed.
 
 Lemma cp_max_trans :
   forall x y z, cp_max x y = x -> cp_max y z = y -> cp_max x z = x.
+Proof.
 intros [x | | ] [y| |]; try (simpl; intros; discriminate);
 intros [z | | ]; try(simpl; intros; discriminate); simpl; auto.
 intros H1 H2; injection H1; injection H2; intros H3 H4.
@@ -180,6 +190,7 @@ Qed.
 
 Lemma thinner_trans : forall v1 v2 v3, thinner v1 v2 ->
  thinner v2 v3 -> thinner v1 v3.
+Proof.
 unfold thinner; intros [b1 u1] [b2 u2] [b3 u3] [H1 H2] [H3 H4].
 split.
 rewrite cp_min_comm; apply cp_min_trans with b2; rewrite cp_min_comm; auto.
@@ -187,6 +198,7 @@ rewrite cp_max_comm; apply cp_max_trans with u2; rewrite cp_max_comm; auto.
 Qed.
 
 Lemma thinner_bot : forall v, thinner v bot.
+Proof.
 unfold bot; intros [[a | | ][b | | ]]; unfold thinner; simpl; auto.
 Qed.
 
@@ -194,6 +206,7 @@ Lemma cp_min_plus :
   forall x y z t,
     cp_min x y = x -> cp_min z t = z ->
     cp_min (comp_add x z)(comp_add y t)= comp_add x z.
+Proof.
 intros [x | | ] [y | | ];simpl;try (intros;discriminate);
 intros [z | | ] [t' | | ];simpl; try (intros; discriminate); auto.
 intros H1 H2; injection H1; injection H2; intros H4 H3.
@@ -207,6 +220,7 @@ Lemma cp_max_plus :
   forall x y z t,
     cp_max x y = x -> cp_max z t = z ->
     cp_max (comp_add x z)(comp_add y t)= comp_add x z.
+Proof.
 intros [x | | ] [y | | ];simpl;try (intros;discriminate);
 intros [z | | ] [t' | | ];simpl; try (intros; discriminate); auto.
 intros H1 H2; injection H1; injection H2; intros H4 H3.
@@ -219,40 +233,47 @@ Qed.
 Lemma thinner_plus :
    forall x y z t, thinner x y -> thinner z t ->
      thinner (plus x z)(plus y t).
+Proof.
 intros [lx ux] [ly uy] [lz uz] [lt' ut] [H1 H2][H3 H4]; split; simpl.
 rewrite cp_min_comm; apply cp_min_plus; rewrite cp_min_comm; auto.
 rewrite cp_max_comm; apply cp_max_plus; rewrite cp_max_comm; auto.
 Qed.
 
 Lemma cp_max_refl : forall x, cp_max x x = x.
+Proof.
 intros [x | | ]; simpl; unfold Z.max; auto.
 rewrite Z.compare_refl; auto.
 Qed.
 
 Lemma cp_min_refl : forall x, cp_min x x = x.
+Proof.
 intros [x | | ]; simpl; unfold Z.min; auto.
 rewrite Z.compare_refl; auto.
 Qed.
 
 Lemma eq_sound : forall x y, eq x y = true -> x = y.
+Proof.
 intros [b1 u1][b2 u2]; unfold eq; case (ext_eq b1 b2); case (ext_eq u1 u2);
  try (intros; discriminate).
 intros; subst; auto.
 Qed.
 
 Lemma eq_complete : forall x, eq x x = true.
+Proof.
 intros [[l | |][u| |]]; simpl; auto;
 try case (Z.eq_dec l l); try case (Z.eq_dec u u); intros; auto;
 try match goal with id :~_ |- _ => case id; apply refl_equal end.
 Qed.
 
 Lemma join_bot : forall i, join i bot = bot.
+Proof.
 intros [[b | |]  [u | | ]]; unfold bot; simpl; auto.
 Qed.
 
 Lemma thinner_join :
   forall e1 e2 e3 e4, thinner e1 e2 -> thinner e3 e4 ->
   thinner (join e1 e3)(join e2 e4).
+Proof.
 intros [l1 u1] [l2 u2] [l3 u3][l4 u4]; unfold thinner; simpl;
  intros [H1 H2][H3 H4]; unfold join; split; simpl.
 destruct l1 as [l1 | | ]; destruct  l2 as [l2 | | ];
@@ -279,6 +300,7 @@ rewrite <- Z.max_assoc; rewrite H4; auto.
 Qed.
 
 Lemma thinner_join_left :  forall i i', thinner i (join i i').
+Proof.
 intros [b1 u1] [b2 u2]; split.
 destruct b1 as [l | | ]; destruct b2 as [l' | | ]; simpl; auto.
 rewrite Z.min_assoc; rewrite Zmin_idempotent; auto.
@@ -289,16 +311,19 @@ rewrite Zmax_idempotent; auto.
 Qed.
 
 Lemma join_comm : forall i i', join i i' = join i' i.
+Proof.
 intros [u l] [u' l']; unfold join.
  rewrite cp_min_comm; rewrite cp_max_comm; auto.
 Qed.
 
 Lemma join_assoc : forall i i' i'', join (join i i') i'' = join i (join i' i'').
+Proof.
 intros [l u][l' u'][l'' u'']; unfold join; rewrite cp_min_assoc; rewrite cp_max_assoc.
 auto.
 Qed.
 
 Lemma join_involutive : forall i, join i i = i.
+Proof.
 intros [l u]; unfold join; rewrite cp_min_refl; rewrite cp_max_refl; auto.
 Qed.
 
@@ -348,6 +373,7 @@ Ltac cp_max_min_diff :=
 
 Lemma Zmax_le_compat :
   forall a b c d, a <= b -> c <= d -> Z.max a c <= Z.max b d.
+Proof.
 intros; apply Z.max_lub.
 apply Z.le_trans with b; auto; apply Z.le_max_l.
 apply Z.le_trans with d; auto; apply Z.le_max_r.
@@ -355,12 +381,14 @@ Qed.
 
 Lemma Zmin_le_compat :
   forall a b c d, a <= b -> c <= d -> Z.min a c <= Z.min b d.
+Proof.
 intros; apply Z.min_glb.
 apply Z.le_trans with a; auto; apply Z.le_min_l.
 apply Z.le_trans with c; auto; apply Z.le_min_r.
 Qed.
 
 Lemma thinner_widen : forall v1 v2, thinner v1 (widen v1 v2).
+Proof.
 intros [[l1 | | ][u1 | | ]]
   [[l2 | | ][u2 | | ]]; try (unfold thinner, widen; intuition1; fail);
 match goal with |- thinner (?x, ?y) (widen _ (?z, ?t)) =>
@@ -381,6 +409,7 @@ Definition to_p (v:ext_Z*ext_Z)(x:Z) : Prop :=
 
 Lemma to_p_thinner : forall l u x, to_p (l,u) x ->
     thinner (l, cZ x) (l, u)/\ thinner (cZ x, u)(l,u).
+Proof.
 intros [l | |] [u | |] x ;unfold to_p, thinner; simpl; try(intuition1;fail);
 repeat rewrite Zmin_idempotent; repeat rewrite Zmax_idempotent.
 intros; rewrite Z.max_comm; rewrite Zle_to_Zmax; try lia;
@@ -400,12 +429,14 @@ destruct i2 as [[l2 | | ][u2 | | ]]; generalize H2; simpl;
 Qed.
 
 Lemma of_int_correct : forall n, to_p (of_int n) n.
+Proof.
 intros; simpl; auto with zarith.
 Qed.
 
 Lemma to_p_cp_max_min :
    forall l u x, to_p (l,u) x -> cp_max l (cZ x) = cZ x /\
                   cp_min (cZ x) u = cZ x.
+Proof.
 intros [l | | ][u | | ]; unfold to_p; simpl; try(intuition1; fail).
 intros; rewrite Z.max_comm; rewrite Zle_to_Zmax;try rewrite Zle_to_Zmin;
  intuition1.
@@ -415,6 +446,7 @@ Qed.
 
 Lemma cp_max_min_to_p :
   forall l u x, cp_max l (cZ x) = cZ x -> cp_min (cZ x) u = cZ x-> to_p (l,u) x.
+Proof.
 intros [l | | ][u | | ]; unfold to_p; simpl; try(intros; auto; discriminate).
 intros x H1 H2; injection H1; injection H2; intros H3 H4;split;
  [rewrite <- H4; apply Z.le_max_l | rewrite <- H3; apply Z.le_min_r].
@@ -424,6 +456,7 @@ Qed.
 
 Lemma thinner_prop :
   forall i1 i2 x, thinner i1 i2 -> to_p i1 x -> to_p i2 x.
+Proof.
 intros [l1 u1][l2 u2] x [H1 H2] H3.
 destruct (to_p_cp_max_min _ _ _ H3).
 apply cp_max_min_to_p.
@@ -435,6 +468,7 @@ apply cp_max_r_cp_min_l; auto.
 Qed.
 
 Lemma bot_semantics : forall x, to_p bot x.
+Proof.
 simpl; intuition1.
 Qed.
 
@@ -621,6 +655,7 @@ Lemma add_test_constraint_right_true_lb :
   forall l1 u1 l2 u2 l u,
     add_test_constraint_right true (l1, u1) (l2, u2) = Some (l, u) ->
     l = l1.
+Proof.
 intros [l1 | | ] [u1 | | ] [l2 | | ] [u2 | | ] l u;
   unfold add_test_constraint_right;
   try (match goal with |- context[ext_eq ?a ?b] =>
@@ -634,6 +669,7 @@ Lemma add_test_constraint_right_false_ub :
   forall l1 u1 l2 u2 l u,
     add_test_constraint_right false (l1, u1) (l2, u2) = Some (l, u) ->
     u = u1.
+Proof.
 intros [l1 | | ] [u1 | | ] [l2 | | ] [u2 | | ] l u;
   unfold add_test_constraint_right;
   try (match goal with |- context[ext_eq ?a ?b] =>
@@ -651,6 +687,7 @@ Lemma add_test_constraint_right_true_ub_no_cut :
     add_test_constraint_right true (l1, u1) (l2, u2) = Some (l, u) ->
     cp_min u1 (comp_add u2 (cZ (-1))) = u1 ->
     u = u1.
+Proof.
 intros [l1 | | ] [u1 | | ] [l2 | | ] [u2 | | ] l u;
   unfold add_test_constraint_right;
   try (match goal with |- context[ext_eq ?a ?b] =>
@@ -664,6 +701,7 @@ Lemma add_test_constraint_right_false_lb_no_cut :
   forall l1 u1 l2 u2 l u,
     add_test_constraint_right false (l1, u1) (l2, u2) = Some (l, u) ->
     cp_max l1 l2 = l1 -> l = l1.
+Proof.
 intros [l1 | | ] [u1 | | ] [l2 | | ] [u2 | | ] l u;
   unfold add_test_constraint_right;
   try (match goal with |- context[ext_eq ?a ?b] =>
@@ -682,6 +720,7 @@ Lemma add_test_constraint_right_true_ub_cut :
     add_test_constraint_right true (l1, u1) (l2, u2) = Some (l, u) ->
     u1 <> cp_min u1 (comp_add u2 (cZ (-1))) ->
     u = comp_add u2 (cZ (-1)).
+Proof.
 intros [l1 | | ] [u1 | | ] [l2 | | ] [u2 | | ] l u;
   unfold add_test_constraint_right;
   try (match goal with |- context[ext_eq ?a ?b] =>
@@ -699,6 +738,7 @@ Lemma add_test_constraint_right_false_lb_cut :
   forall l1 u1 l2 u2 l u,
     add_test_constraint_right false (l1, u1) (l2, u2) = Some (l, u) ->
     l1 <> cp_max l1 l2 -> l = l2.
+Proof.
 intros [l1 | | ] [u1 | | ] [l2 | | ] [u2 | | ] l u;
   unfold add_test_constraint_right;
   try (match goal with |- context[ext_eq ?a ?b] =>
@@ -718,6 +758,7 @@ Qed.
 
 Lemma not_cp_min_cp_max :
   forall a b, ~cp_min a b = b->cp_max a b = b.
+Proof.
 intros [a | | ][b | | ]; simpl; try (intuition1; fail).
 destruct (Zle_or_lt a b).
 rewrite Z.max_comm; rewrite Zle_to_Zmax; auto.
@@ -730,6 +771,7 @@ Lemma add_test_constraint_right_true_monotonic :
     add_test_constraint_right true v1 v2 = Some v ->
     add_test_constraint_right true v1' v2' = Some v' ->
     thinner v1 v1' -> thinner v2 v2' -> thinner v v'.
+Proof.
 intros [l1 u1][l2 u2][l1' u1'][l2' u2'][l u][l' u'] H H'.
 rewrite add_test_constraint_right_true_lb with (1:=H).
 rewrite add_test_constraint_right_true_lb with (1:=H').
@@ -760,12 +802,14 @@ Qed.
 
 Lemma cp_max_irreducible :
   forall a b, cp_max a b = a \/ cp_max a b = b.
+Proof.
 intros [a | | ][b | | ];try (intuition1; fail).
 simpl; case (Zmax_irreducible_inf a b); intros H; rewrite H; auto.
 Qed.
 
 Lemma cp_min_irreducible :
   forall a b, cp_min a b = a \/ cp_min a b = b.
+Proof.
 intros [a | | ][b | | ]; try (intuition1;fail).
 simpl; case (Zmin_irreducible a b); intros H; rewrite H; auto.
 Qed.
@@ -775,6 +819,7 @@ Lemma add_test_constraint_right_false_monotonic :
     add_test_constraint_right false v1 v2 = Some v ->
     add_test_constraint_right false v1' v2' = Some v' ->
     thinner v1 v1' -> thinner v2 v2' -> thinner v v'.
+Proof.
 intros [l1 u1][l2 u2][l1' u1'][l2' u2'][l u][l' u'] H H'.
 rewrite add_test_constraint_right_false_ub with (1:=H).
 rewrite add_test_constraint_right_false_ub with (1:=H').
@@ -804,6 +849,7 @@ Lemma add_test_constraint_right_monotonic :
     add_test_constraint_right neg v1 v2 = Some v ->
     add_test_constraint_right neg v1' v2' = Some v' ->
     thinner v1 v1' -> thinner v2 v2' -> thinner v v'.
+Proof.
 intros [|].
 apply add_test_constraint_right_true_monotonic.
 apply add_test_constraint_right_false_monotonic.
@@ -813,6 +859,7 @@ Lemma add_test_constraint_left_true_ub :
   forall l1 u1 l2 u2 l u,
     add_test_constraint_left true (l1, u1) (l2, u2) = Some (l, u) ->
     u = u2.
+Proof.
 intros [l1 | | ] [u1 | | ] [l2 | | ] [u2 | | ] l u;
   unfold add_test_constraint_left;
   try (match goal with |- context[ext_eq ?a ?b] =>
@@ -826,6 +873,7 @@ Lemma add_test_constraint_left_false_lb :
   forall l1 u1 l2 u2 l u,
     add_test_constraint_left false (l1, u1) (l2, u2) = Some (l, u) ->
     l = l2.
+Proof.
 intros [l1 | | ] [u1 | | ] [l2 | | ] [u2 | | ] l u;
   unfold add_test_constraint_left;
   try (match goal with |- context[ext_eq ?a ?b] =>
@@ -843,6 +891,7 @@ Lemma add_test_constraint_left_true_lb_no_cut :
     add_test_constraint_left true (l1, u1) (l2, u2) = Some (l, u) ->
     cp_max (comp_add l1 (cZ 1)) l2 = l2 ->
     l = l2.
+Proof.
 intros [l1 | | ] [u1 | | ] [l2 | | ] [u2 | | ] l u;
   unfold add_test_constraint_left;
   try (match goal with |- context[ext_eq ?a ?b] =>
@@ -856,6 +905,7 @@ Lemma add_test_constraint_left_false_lb_no_cut :
   forall l1 u1 l2 u2 l u,
     add_test_constraint_left false (l1, u1) (l2, u2) = Some (l, u) ->
     cp_min u1 u2 = u2 -> u = u2.
+Proof.
 intros [l1 | | ] [u1 | | ] [l2 | | ] [u2 | | ] l u;
   unfold add_test_constraint_left;
   try (match goal with |- context[ext_eq ?a ?b] =>
@@ -873,6 +923,7 @@ Lemma add_test_constraint_left_true_lb_cut :
     add_test_constraint_left true (l1, u1) (l2, u2) = Some (l, u) ->
     l2 <> cp_max (comp_add l1 (cZ 1)) l2 ->
     l = comp_add l1 (cZ 1).
+Proof.
 intros [l1 | | ] [u1 | | ] [l2 | | ] [u2 | | ] l u;
   unfold add_test_constraint_left;
   try (match goal with |- context[ext_eq ?a ?b] =>
@@ -889,6 +940,7 @@ Lemma add_test_constraint_left_false_lb_cut :
   forall l1 u1 l2 u2 l u,
     add_test_constraint_left false (l1, u1) (l2, u2) = Some (l, u) ->
     u2 <> cp_min u1 u2 -> u = u1.
+Proof.
 intros [l1 | | ] [u1 | | ] [l2 | | ] [u2 | | ] l u;
   unfold add_test_constraint_left;
   try (match goal with |- context[ext_eq ?a ?b] =>
@@ -911,6 +963,7 @@ Lemma add_test_constraint_left_true_monotonic :
     add_test_constraint_left true v1 v2 = Some v ->
     add_test_constraint_left true v1' v2' = Some v' ->
     thinner v1 v1' -> thinner v2 v2' -> thinner v v'.
+Proof.
 intros [l1 u1][l2 u2][l1' u1'][l2' u2'][l u][l' u'] H H'.
 rewrite add_test_constraint_left_true_ub with (1:=H).
 rewrite add_test_constraint_left_true_ub with (1:=H').
@@ -946,6 +999,7 @@ Lemma add_test_constraint_left_false_monotonic :
     add_test_constraint_left false v1 v2 = Some v ->
     add_test_constraint_left false v1' v2' = Some v' ->
     thinner v1 v1' -> thinner v2 v2' -> thinner v v'.
+Proof.
 intros [l1 u1][l2 u2][l1' u1'][l2' u2'][l u][l' u'] H H'.
 rewrite add_test_constraint_left_false_lb with (1:=H).
 rewrite add_test_constraint_left_false_lb with (1:=H').
@@ -976,6 +1030,7 @@ Lemma add_test_constraint_left_monotonic :
     add_test_constraint_left neg v1 v2 = Some v ->
     add_test_constraint_left neg v1' v2' = Some v' ->
     thinner v1 v1' -> thinner v2 v2' -> thinner v v'.
+Proof.
 intros [|].
 apply add_test_constraint_left_true_monotonic.
 apply add_test_constraint_left_false_monotonic.
@@ -986,6 +1041,7 @@ Lemma add_test_constraint_right_monotonic_none :
     add_test_constraint_right neg v1 v2 = Some v ->
     thinner v1 v1' -> thinner v2 v2' ->
     ~add_test_constraint_right neg v1' v2' = None.
+Proof.
 unfold add_test_constraint_right;
 intros [|] [l1 u1][l2 u2][l1' u1'][l2' u2'] [l u] Hadd [H1 H2][H3 H4].
 destruct (ext_eq l1' (cp_max l1' u2')).
@@ -1017,6 +1073,7 @@ Lemma add_test_constraint_left_monotonic_none :
     add_test_constraint_left neg v1 v2 = Some v ->
     thinner v1 v1' -> thinner v2 v2' ->
     ~add_test_constraint_left neg v1' v2' = None.
+Proof.
 unfold add_test_constraint_left;
 intros [|] [l1 u1][l2 u2][l1' u1'][l2' u2'] [l u] Hadd [H1 H2][H3 H4].
 destruct (ext_eq u2' (cp_min l1' u2')).

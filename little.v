@@ -77,8 +77,8 @@ Proof.
 induction 1; eauto.
 Qed.
 
-Lemma sos_sequence_aux : forall r i is r',
-  sos_star r i is r' -> is = skip ->
+Lemma sos_sequence_aux : forall r i i2 r',
+  sos_star r i i2 r' -> i2 = skip ->
   forall i' i'' r'', sos_star r' i' i'' r'' ->
   sos_star r (sequence i i') i'' r''.
 Proof.
@@ -127,8 +127,8 @@ Proof.
  induction 1; intros r2 Hexec; try (inversion Hexec; subst; eauto).
 Qed.
 
-Lemma sos_imp_sn_aux : forall r i is r',
-  sos_star r i is r' -> is = skip -> exec r i r'.
+Lemma sos_imp_sn_aux : forall r i i2 r',
+  sos_star r i i2 r' -> i2 = skip -> exec r i r'.
 Proof.
  induction 1; intros; subst; eauto.
  eapply sos_step_imp_sn; eauto.

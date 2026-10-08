@@ -157,6 +157,7 @@ Open Scope a_scope.
 
 Lemma af'_correct : forall r1 e v g,
   aeval r1 e v -> af' (r1@g) e = v.
+Proof.
 intros r1 e v g H; induction H; simpl; auto.
 case (string_dec x x); auto.
 intros Habs; elim Habs; auto.
@@ -167,6 +168,7 @@ Qed.
 
 Lemma update_af' : forall x v r1 r2 g,
   s_update r1 x v r2 -> af' (r2@g) (avar x) = v.
+Proof.
 intros x v r1 r2 g H; induction H.
 simpl; case (string_dec x x); auto.
 intros Habs; case Habs; auto.
@@ -179,6 +181,7 @@ Qed.
 Lemma update_af'_diff : forall x v r1 r2 g s,
   s_update r1 x v r2 -> x <> s -> 
   af' (r2@g)(avar s) = af' (r1@g) (avar s).
+Proof.
 intros x v r1 r2 g s H; induction H; intros Hnxs.
 simpl; case (string_dec x s).
 intros Hxs; elim Hnxs; auto.
@@ -189,6 +192,7 @@ Qed.
 Lemma update_af'_var_subst : forall r1 x v r2 e g s,
   s_update r1 x v r2 -> aeval r1 e v ->
   af' (r2@g) (avar s) = af' (r1@g) (subst (avar s) x e).
+Proof.
 intros r1 x v r2 e g s H He; simpl subst.
 case (string_dec x s).
 intros; subst s; rewrite (af'_correct r1 e v); auto.
@@ -199,6 +203,7 @@ Qed.
 Lemma update_af'_subst : forall r1 x v r2 e' g e, 
   s_update r1 x v r2 -> aeval r1 e' v ->
   af' (r2@g) e = af' (r1@g) (subst e x e').
+Proof.
 intros r1 x v r2 e' g e Hup He'; induction e.
 apply update_af'_var_subst with (1:= Hup); auto.
 trivial.
@@ -208,6 +213,7 @@ Qed.
 Lemma update_lf'_subst :
   forall r1 x v r2 e' g l, s_update r1 x v r2 -> aeval r1 e' v ->
   lf' (r2@g) l = lf' (r1@g) (l_subst l x e').
+Proof.
 intros r1 x v r2 e' g l Hu He'; induction l.
 simpl; auto.
 simpl; rewrite update_af'_subst with (1:= Hu)(2:= He').
@@ -217,6 +223,7 @@ Qed.
 Lemma update_f_p_subst :
   forall r1 x v r2 e' m g s l, s_update r1 x v r2 -> aeval r1 e' v ->
   (f_p m s (lf' (r1@g) (l_subst l x e')) <-> f_p m s (lf' (r2@g) l)).
+Proof.
 intros r1 x v r2 e' m g s l Hu He'; induction m.
 simpl; intros; split; auto.
 destruct a as [p1 P]; simpl; case (string_dec p1 s).
@@ -231,6 +238,7 @@ Lemma a_subst_correct :
     s_update r1 x v r2 ->
     (i_a m (r1@g) (a_subst a x e)<->
     i_a m (r2@g) a).
+Proof.
 induction a; simpl; intros r1 e v m g r2 x H Hu.
 destruct b as [e1 e2]; unfold bf', b_subst.
 repeat rewrite update_af'_subst with (1:= Hu) (2:=H); split; auto.
@@ -243,6 +251,7 @@ Qed.
 
 Lemma beval_true_interpret :
   forall r b g, beval r b true -> bf' (r@g) b.
+Proof.
 intros r b g H; inversion H; simpl.
 rewrite (af'_correct r e1 v1);
  try rewrite (af'_correct r e2 v2); auto.
@@ -250,6 +259,7 @@ Qed.
 
 Lemma beval_false_interpret :
   forall r b g, beval r b false -> ~ bf' (r@g) b.
+Proof.
 intros r b g H; inversion H; simpl.
 rewrite (af'_correct r e1 v1);
  try rewrite (af'_correct r e2 v2); auto with zarith.
@@ -259,6 +269,7 @@ Global Hint Resolve beval_true_interpret beval_false_interpret : core.
 
 Lemma ax_sem_nax :
   forall m P i Q, ax_sem m P i Q -> nax m P i Q.
+Proof.
 induction 1.
 apply nax1; red; simpl; auto.
 apply nax2 with P; red; simpl; auto.
@@ -275,6 +286,7 @@ Global Hint Resolve ax1 ax2 ax3 ax4 : core.
 
 Lemma nax_ax_sem :
   forall m P i Q, nax m P i Q -> ax_sem m P i Q.
+Proof.
 induction 1.
 apply ax5 with Q Q; unfold valid in *; simpl in *; eauto.
 apply ax5 with (a_subst P' x e) P'; simpl in *; eauto.
@@ -306,6 +318,7 @@ Qed.
 Theorem ax_sem_sound :
   forall m r i r' g P Q, exec r i r' -> ax_sem m P i Q ->
   i_a m (r@g) P -> i_a m (r'@g) Q.
+Proof.
 intros; eapply nax_sound; eauto.
 apply ax_sem_nax; auto.
 Qed.
@@ -318,6 +331,7 @@ Definition valid_l (ps: p_env)(l:list condition) : Prop :=
 Theorem i_lc_app_l : 
   forall m g l1 l2, i_lc m g (l1++l2) ->
     i_lc m g l1.
+Proof.
 intros m g l1 l2; induction l1; simpl; auto.
 intros [H1 H2]; auto.
 Qed.
@@ -325,6 +339,7 @@ Qed.
 Theorem i_lc_app_r :
  forall m g l1 l2, i_lc m g (l1++l2) ->
   i_lc m g l2.
+Proof.
 intros m g l1 l2; induction l1;simpl; auto.
 intros [H1 H2]; auto.
 Qed.
@@ -332,6 +347,7 @@ Qed.
 Theorem vcg_ax :
   forall m i A, valid_l m (vcg i A) ->
   ax_sem m (pc i A) (un_annot i) A.
+Proof.
 unfold valid_l; intros m i; induction i; intros A Hc; simpl.
 simpl in *; apply ax5 with (pc i A) A.
 intros g; elim (Hc g); auto.
