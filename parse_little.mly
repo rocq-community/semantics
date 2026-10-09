@@ -4,8 +4,8 @@
   open String
   open Str_little
   open Str
-(* Beware that module Interp should not be opened, to avoid that Inter.Z hides
-   the Z module from zarith. *)
+(* Beware that module Patched_interp should not be opened, to avoid that
+   Patched_interp.Z hides the Z module from zarith. *)
 
 
 (* Making Coq data. *)
@@ -13,18 +13,18 @@
 let big_int2 = Z.of_int 2
 
 let z_of_big_int n =
-    let rec f n = if Z.equal n Z.one then Interp.XH
+    let rec f n = if Z.equal n Z.one then Patched_interp.XH
                 else let q,r = Z.div_rem n big_int2 in
-                  if Z.equal r Z.one then Interp.XI(f q)
-                  else Interp.XO(f q) in
-  if Z.equal n Z.zero then Interp.Z0 else Interp.Zpos(f n)
+                  if Z.equal r Z.one then Patched_interp.XI(f q)
+                  else Patched_interp.XO(f q) in
+  if Z.equal n Z.zero then Patched_interp.Z0 else Patched_interp.Zpos(f n)
 
-let p a b = Interp.Pair(a, b)
-let c a b = Interp.Cons(a, b)
-let nil = Interp.Nil
+let p a b = Patched_interp.Pair(a, b)
+let c a b = Patched_interp.Cons(a, b)
+let nil = Patched_interp.Nil
 
 let rec mk_precs l i =
- match l with [] -> i | a :: tl -> Interp.Prec(a, mk_precs tl i)
+ match l with [] -> i | a :: tl -> Patched_interp.Prec(a, mk_precs tl i)
 
 %}
 %token VARIABLES IN END WHILE DO DONE ASSIGN PLUS MINUS COMMA CONJ BANG
@@ -33,24 +33,24 @@ let rec mk_precs l i =
 %token <string> ID
 %left PLUS
 %right CONJ
-%type <(string,Interp.z)Interp.prod Interp.list*string Interp.a_instr0> main
-%type <string Interp.a_instr0> inst
+%type <(string,Patched_interp.z)Patched_interp.prod Patched_interp.list*string Patched_interp.a_instr0> main
+%type <string Patched_interp.a_instr0> inst
 %start main main_intervals inst_with_post
-%type <Interp.z> num
+%type <Patched_interp.z> num
 %type <string> identifier
-%type <(string,(Interp.ext_Z,Interp.ext_Z)Interp.prod)Interp.prod Interp.list*string Interp.a_instr0>main_intervals
-%type <string Interp.a_instr0*string Interp.assert0> inst_with_post
+%type <(string,(Patched_interp.ext_Z,Patched_interp.ext_Z)Patched_interp.prod)Patched_interp.prod Patched_interp.list*string Patched_interp.a_instr0>main_intervals
+%type <string Patched_interp.a_instr0*string Patched_interp.assert0> inst_with_post
 %%
 main : VARIABLES environment IN inst END { ($2, $4) }
 ;
 main_intervals : VARIABLES interval_environment IN inst END  { ($2,$4) }
-num : NUM { z_of_big_int $1 } | MINUS NUM {Interp.Z.opp (z_of_big_int $2)}
+num : NUM { z_of_big_int $1 } | MINUS NUM {Patched_interp.Z.opp (z_of_big_int $2)}
 ;
 identifier : ID { $1 }
 ;
 variable_value : identifier num { p $1 $2 }
 ;
-bound : num {Interp.CZ $1} | MINFTY {Interp.Minfty} | PINFTY {Interp.Pinfty}
+bound : num {Patched_interp.CZ $1} | MINFTY {Patched_interp.Minfty} | PINFTY {Patched_interp.Pinfty}
 ;
 variable_interval : identifier bound bound {p $1 (p $2 $3)}
 ;
@@ -61,44 +61,44 @@ environment : { nil }
 | variable_value environment { c $1 $2 }
 ;
 inst: elem_inst {$1}
-|  elem_inst SEMICOLON inst { Interp.A_sequence($1,$3) }
+|  elem_inst SEMICOLON inst { Patched_interp.A_sequence($1,$3) }
 ;
 elem_inst : elem_inst0 {$1}
-| SOPEN l_assert SCLOSE elem_inst {Interp.Prec($2,$4)}
+| SOPEN l_assert SCLOSE elem_inst {Patched_interp.Prec($2,$4)}
 ;
 
 elem_inst0 : BOPEN inst BCLOSE { $2 }
-|  SKIP { Interp.A_skip }
+|  SKIP { Patched_interp.A_skip }
 |  WHILE b_exp DO inst DONE
-     {match $4 with Interp.Prec(a,i) -> Interp.A_while($2,a, i)
-         | Interp.A_sequence(Interp.Prec(a,i),j) ->
-           Interp.A_while($2, a, Interp.A_sequence(i, j))
-         | it -> Interp.A_while($2, false_assert, it)}
-|  identifier ASSIGN exp { Interp.A_assign($1,$3) }
+     {match $4 with Patched_interp.Prec(a,i) -> Patched_interp.A_while($2,a, i)
+         | Patched_interp.A_sequence(Patched_interp.Prec(a,i),j) ->
+           Patched_interp.A_while($2, a, Patched_interp.A_sequence(i, j))
+         | it -> Patched_interp.A_while($2, false_assert, it)}
+|  identifier ASSIGN exp { Patched_interp.A_assign($1,$3) }
 ;
 inst_with_post :
   elem_inst SOPEN l_assert SCLOSE {($1,$3)}
 | elem_inst SEMICOLON inst_with_post
-   {let a,b = $3 in Interp.A_sequence($1,a), b }
+   {let a,b = $3 in Patched_interp.A_sequence($1,a), b }
 ;
-exp: num { Interp.Anum($1) }
-|    identifier { Interp.Avar($1) }
-|    exp PLUS exp { Interp.Aplus($1, $3); }
+exp: num { Patched_interp.Anum($1) }
+|    identifier { Patched_interp.Avar($1) }
+|    exp PLUS exp { Patched_interp.Aplus($1, $3); }
 |    OPEN exp CLOSE { $2 }
 ;
-b_exp: exp LT exp { Interp.Blt($1, $3) }
+b_exp: exp LT exp { Patched_interp.Blt($1, $3) }
 ;
-elem_assert : b_exp {Interp.A_b($1)}
-|   identifier OPEN l_exp CLOSE {Interp.Pred($1, $3)}
-|   BANG elem_assert {Interp.A_not($2)}
+elem_assert : b_exp {Patched_interp.A_b($1)}
+|   identifier OPEN l_exp CLOSE {Patched_interp.Pred($1, $3)}
+|   BANG elem_assert {Patched_interp.A_not($2)}
 ;
 l_assert : elem_assert {$1}
-| elem_assert CONJ l_assert {Interp.A_conj($1,$3)}
+| elem_assert CONJ l_assert {Patched_interp.A_conj($1,$3)}
 ;
 l_exp : l_exp1 {$1}
-| {Interp.Nil}
+| {Patched_interp.Nil}
 ;
-l_exp1 : exp { Interp.Cons($1, Interp.Nil)}
-| exp COMMA l_exp1 {Interp.Cons($1, $3)}
+l_exp1 : exp { Patched_interp.Cons($1, Patched_interp.Nil)}
+| exp COMMA l_exp1 {Patched_interp.Cons($1, $3)}
 ;
 %%

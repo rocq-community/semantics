@@ -1,6 +1,8 @@
 post-all:: little.native proof_sqrt.v test_vcg.lil
 
 little.native: extract_interpret.vo parse_little.mly llex.mll str_little.ml little.ml
+	./Coq_Rocq_patch < interp.ml > patched_interp.ml
+	./Coq_Rocq_patch < interp.mli > patched_interp.mli
 	$(CAMLBIN)ocamlbuild -use-ocamlfind -package zarith -no-hygiene -classic-display $@
 
 proof_sqrt.v: context_sqrt.v tail_sqrt.v sqrt.lil little.native
@@ -10,6 +12,6 @@ test_vcg.lil: ex_int.lil little.native
 	./little.native -static-analysis < ex_int.lil > test_vcg.lil
 
 clean::
-	rm -f Makefile.coq Makefile.coq.conf interp.ml*
+	rm -f Makefile.coq Makefile.coq.conf interp.ml* patched_interp.ml*
 	rm -rf _build little.native proof_sqrt.v test_vcg.lil
 	rm -f parse_little.ml parse_little.mli

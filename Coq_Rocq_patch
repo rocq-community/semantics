@@ -1,0 +1,3 @@
+#!/bin/sh
+
+sed -e 's/Coq_/Rocq_/g' -e 's/coq/rocq/g'

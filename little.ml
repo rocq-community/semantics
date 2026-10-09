@@ -1,15 +1,15 @@
 module Big_int = Z
 open Parse_little
-open Interp
+open Patched_interp
 open Str_little
 open Str
 
 (* Recuperating the certified code from the file Interp. *)
 (* Str_little.Str is a module providing the string operations, based on
    ocaml native strings. *)
-module D = Interp.Rocq_denot(Str_little.Str)
-module A = Interp.Rocq_ax(Str_little.Str)
-module B = Interp.Rocq_ab(Str_little.Str)
+module D = Patched_interp.Rocq_denot(Str_little.Str)
+module A = Patched_interp.Rocq_ax(Str_little.Str)
+module B = Patched_interp.Rocq_ab(Str_little.Str)
 open B
 open A
 open D
@@ -20,68 +20,68 @@ open L
 let two_big_int = Big_int.of_int 2
 
 let rec big_int_of_positive = function
-  Interp.XH -> Big_int.one
-| Interp.XI p -> Big_int.succ (Big_int.mul two_big_int (big_int_of_positive p))
-| Interp.XO p -> Big_int.mul two_big_int (big_int_of_positive p)
+  Patched_interp.XH -> Big_int.one
+| Patched_interp.XI p -> Big_int.succ (Big_int.mul two_big_int (big_int_of_positive p))
+| Patched_interp.XO p -> Big_int.mul two_big_int (big_int_of_positive p)
 
 let bigint_of_z = function
-  Interp.Z0 -> Big_int.zero
-| Interp.Zpos x -> big_int_of_positive x
-| Interp.Zneg x -> Big_int.neg (big_int_of_positive x)
+  Patched_interp.Z0 -> Big_int.zero
+| Patched_interp.Zpos x -> big_int_of_positive x
+| Patched_interp.Zneg x -> Big_int.neg (big_int_of_positive x)
   
 let rec display_result = function
-  Interp.Nil -> ()
-| Interp.Cons(Interp.Pair(s, v), tl) ->
+  Patched_interp.Nil -> ()
+| Patched_interp.Cons(Patched_interp.Pair(s, v), tl) ->
   print_string (s ^ " " ^ Big_int.to_string (bigint_of_z v) ^ "\n");
   display_result tl
 
 (* Displaying assertions *)
 
 let rec string_of_expr = function
-  Interp.Avar s -> s
-| Interp.Anum n -> Big_int.to_string (bigint_of_z n)
-| Interp.Aplus(e1, e2) -> string_of_expr e1 ^ "+" ^ string_of_expr e2
+  Patched_interp.Avar s -> s
+| Patched_interp.Anum n -> Big_int.to_string (bigint_of_z n)
+| Patched_interp.Aplus(e1, e2) -> string_of_expr e1 ^ "+" ^ string_of_expr e2
 
-let string_of_bexpr (Interp.Blt(e1, e2)) =
+let string_of_bexpr (Patched_interp.Blt(e1, e2)) =
   string_of_expr e1 ^ "<" ^ string_of_expr e2
 
 let rec interp_fold_left f v = function
-  Interp.Nil -> v
-| Interp.Cons(e,l) -> interp_fold_left f (f v e) l
+  Patched_interp.Nil -> v
+| Patched_interp.Cons(e,l) -> interp_fold_left f (f v e) l
 
 let rec string_of_assert = function
-  Interp.A_b b -> string_of_bexpr b
-| Interp.A_not a -> "!" ^ string_of_assert a
-| Interp.Pred(s, l) -> s ^ "(" ^
+  Patched_interp.A_b b -> string_of_bexpr b
+| Patched_interp.A_not a -> "!" ^ string_of_assert a
+| Patched_interp.Pred(s, l) -> s ^ "(" ^
   (match l with
-    Interp.Nil -> ""
-  | Interp.Cons(e, l) -> 
+    Patched_interp.Nil -> ""
+  | Patched_interp.Cons(e, l) -> 
     (interp_fold_left
       (fun s e -> s ^ ", " ^ string_of_expr e)
       (string_of_expr e)) l) ^ ")"
-| Interp.A_conj(e1, e2) -> string_of_assert e1 ^ "/\\" ^ string_of_assert e2
+| Patched_interp.A_conj(e1, e2) -> string_of_assert e1 ^ "/\\" ^ string_of_assert e2
 
 let string_of_condition = function
-  Interp.C_imp(a1,a2) -> string_of_assert a1 ^ " -> " ^ string_of_assert a2
+  Patched_interp.C_imp(a1,a2) -> string_of_assert a1 ^ " -> " ^ string_of_assert a2
 
 let rec string_of_a_instr = function
-  Interp.A_assign(x, e) -> (x ^ ":=" ^ string_of_expr e)
-| Interp.A_while(b, a, i) ->
+  Patched_interp.A_assign(x, e) -> (x ^ ":=" ^ string_of_expr e)
+| Patched_interp.A_while(b, a, i) ->
    "while " ^ string_of_bexpr b ^ " do\n[" ^
    string_of_assert a ^ "]\n" ^
    string_of_a_instr i ^
    "\ndone"
-| Interp.A_skip -> "skip"
-| Interp.A_sequence(i1, i2) ->
+| Patched_interp.A_skip -> "skip"
+| Patched_interp.A_sequence(i1, i2) ->
   string_of_a_instr i1 ^ ";\n" ^ string_of_a_instr i2
-| Interp.Prec(a,i) ->
+| Patched_interp.Prec(a,i) ->
   "[" ^ string_of_assert a ^ "]\n" ^ string_of_a_instr i
 
 (* The interpreter *)
 let process_program = function
     (l, i) ->
     (match ds (un_annot i) l with
-       Interp.Some(l) -> display_result l
+       Patched_interp.Some(l) -> display_result l
      | _ -> failwith "execution failed")
 
 (* display of conditions, for Coq. *)
@@ -90,44 +90,44 @@ module SS = Set.Make(struct type t = string let compare = String.compare end)
 open SS
 
 let rec collect_expr set = function
-  Interp.Avar s -> add s set
-| Interp.Anum n -> set
-| Interp.Aplus(e1, e2) -> collect_expr (collect_expr set e1) e2
+  Patched_interp.Avar s -> add s set
+| Patched_interp.Anum n -> set
+| Patched_interp.Aplus(e1, e2) -> collect_expr (collect_expr set e1) e2
 
 let rec collect_expr_list set = function
-  Interp.Nil -> set
-| Interp.Cons(e,l) -> collect_expr (collect_expr_list set l) e
+  Patched_interp.Nil -> set
+| Patched_interp.Cons(e,l) -> collect_expr (collect_expr_list set l) e
 
-let collect_bexpr set (Interp.Blt(e1,e2)) =
+let collect_bexpr set (Patched_interp.Blt(e1,e2)) =
   collect_expr (collect_expr set e1) e2
 
 let rec collect_assert set = function
-  Interp.A_b b -> collect_bexpr set b
-| Interp.A_not a -> collect_assert set a
-| Interp.Pred(s, l) -> collect_expr_list set l
-| Interp.A_conj(a1,a2) -> collect_assert (collect_assert set a1) a2
+  Patched_interp.A_b b -> collect_bexpr set b
+| Patched_interp.A_not a -> collect_assert set a
+| Patched_interp.Pred(s, l) -> collect_expr_list set l
+| Patched_interp.A_conj(a1,a2) -> collect_assert (collect_assert set a1) a2
 
 let rec coq_expr = function
-  Interp.Avar s -> s
-| Interp.Anum n -> Big_int.to_string (bigint_of_z n)
-| Interp.Aplus(e1,e2) -> coq_expr e1 ^ "+" ^ coq_expr e2
+  Patched_interp.Avar s -> s
+| Patched_interp.Anum n -> Big_int.to_string (bigint_of_z n)
+| Patched_interp.Aplus(e1,e2) -> coq_expr e1 ^ "+" ^ coq_expr e2
 
-let coq_bexpr (Interp.Blt(e1,e2)) = coq_expr e1 ^ " < " ^ coq_expr e2
+let coq_bexpr (Patched_interp.Blt(e1,e2)) = coq_expr e1 ^ " < " ^ coq_expr e2
 
 let rec coq_plain_assert = function
-  Interp.A_b b -> coq_bexpr b
-| Interp.A_not a -> "~(" ^ coq_plain_assert a ^ ")"
-| Interp.A_conj(a1,a2) -> "(" ^ coq_plain_assert a1 ^ ") /\\ (" ^
+  Patched_interp.A_b b -> coq_bexpr b
+| Patched_interp.A_not a -> "~(" ^ coq_plain_assert a ^ ")"
+| Patched_interp.A_conj(a1,a2) -> "(" ^ coq_plain_assert a1 ^ ") /\\ (" ^
                        coq_plain_assert a2 ^ ")"
-| Interp.Pred(s, l) -> 
+| Patched_interp.Pred(s, l) -> 
   (interp_fold_left
    (fun (s:string) (e:Str.aexpr) -> 
     s ^ " " ^ 
-    (match e with Interp.Aplus(_,_) -> "(" ^ coq_expr e ^ ")"
+    (match e with Patched_interp.Aplus(_,_) -> "(" ^ coq_expr e ^ ")"
         | _ -> coq_expr e))
    s l)
 
-let coq_string_of_condition (Interp.C_imp(a1,a2)) =
+let coq_string_of_condition (Patched_interp.C_imp(a1,a2)) =
   let names = collect_assert (collect_assert empty a1) a2 in
   "forall " ^
   fold (fun name s -> name ^ " " ^ s) names 
@@ -140,7 +140,7 @@ let coq_string_of_condition (Interp.C_imp(a1,a2)) =
 
 let process_abstract (vars, inst) =
   match B.abstract_i (un_annot inst) vars with
-     Interp.Pair(i, opt_e) ->
+     Patched_interp.Pair(i, opt_e) ->
      print_string(string_of_a_instr i ^ "\n[" ^
                   string_of_assert (B.to_a' opt_e) ^ "]\n");;
 
