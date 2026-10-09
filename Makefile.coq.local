@@ -6,7 +6,7 @@ little.native: extract_interpret.vo parse_little.mly llex.mll str_little.ml litt
 	$(CAMLBIN)ocamlbuild -use-ocamlfind -package zarith -no-hygiene -classic-display $@
 
 proof_sqrt.v: context_sqrt.v tail_sqrt.v sqrt.lil little.native
-	./little.native -vcg-coq < sqrt.lil | cat context_sqrt.v - tail_sqrt.v > proof_sqrt.v
+	./little.native -vcg-rocq < sqrt.lil | cat context_sqrt.v - tail_sqrt.v > proof_sqrt.v
 
 test_vcg.lil: ex_int.lil little.native
 	./little.native -static-analysis < ex_int.lil > test_vcg.lil

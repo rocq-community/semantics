@@ -3,7 +3,7 @@ fullname: Semantics
 shortname: semantics
 opam_name: rocq-semantics
 namespace: Semantics
-organization: coq-community
+organization: rocq-community
 community: true
 action: true
 
@@ -157,6 +157,6 @@ documentation: |
     options:
     - `-interpreter` (just to execute a program)
     - `-vcg` (to generate the conditions for the verification of an annotated program)
-    - `-vcg-coq` (to generate the conditions in coq syntax)
+    - `-vcg-rocq` (to generate the conditions in rocq syntax)
     - `-static-analysis` (to run the abstract interpreter).
 ---

@@ -182,7 +182,7 @@ if Array.length(Sys.argv) = 2 then
  else if Sys.argv.(1) = "-vcg" then
    let (inst,post) = parse_tool inst_with_post in
    process_vcg false (inst,post)
- else if Sys.argv.(1) = "-vcg-coq" then
+ else if Sys.argv.(1) = "-vcg-rocq" then
    let (inst,post) = parse_tool inst_with_post in
    process_vcg true (inst,post)
  else if Sys.argv.(1) = "-static-analysis" then
@@ -195,4 +195,4 @@ else
 with Failure _ ->
  failwith ("usage: " ^ 
                Sys.argv.(0) ^ 
-               " [-interpreter | -vcg | -vcg-coq | -static-analysis] < file")
+               " [-interpreter | -vcg | -vcg-rocq | -static-analysis] < file")

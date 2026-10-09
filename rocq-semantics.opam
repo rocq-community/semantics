@@ -5,9 +5,9 @@ opam-version: "2.0"
 maintainer: "yves.bertot@inria.fr"
 version: "dev"
 
-homepage: "https://github.com/coq-community/semantics"
-dev-repo: "git+https://github.com/coq-community/semantics.git"
-bug-reports: "https://github.com/coq-community/semantics/issues"
+homepage: "https://github.com/rocq-community/semantics"
+dev-repo: "git+https://github.com/rocq-community/semantics.git"
+bug-reports: "https://github.com/rocq-community/semantics/issues"
 license: "MIT"
 
 synopsis: "A survey of semantics styles, from natural semantics through structural operational, axiomatic, and denotational semantics, to abstract interpretation"

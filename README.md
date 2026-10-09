@@ -10,8 +10,8 @@ Follow the instructions on https://github.com/coq-community/templates to regener
 [![Zulip][zulip-shield]][zulip-link]
 [![DOI][doi-shield]][doi-link]
 
-[docker-action-shield]: https://github.com/coq-community/semantics/actions/workflows/docker-action.yml/badge.svg?branch=master
-[docker-action-link]: https://github.com/coq-community/semantics/actions/workflows/docker-action.yml
+[docker-action-shield]: https://github.com/rocq-community/semantics/actions/workflows/docker-action.yml/badge.svg?branch=master
+[docker-action-link]: https://github.com/rocq-community/semantics/actions/workflows/docker-action.yml
 
 [contributing-shield]: https://img.shields.io/badge/contributions-welcome-%23f7931e.svg
 [contributing-link]: https://github.com/coq-community/manifesto/blob/master/CONTRIBUTING.md
@@ -71,7 +71,7 @@ libraries this development depends on are installed.  The easiest way to do that
 is still to rely on opam:
 
 ``` shell
-git clone https://github.com/coq-community/semantics.git
+git clone https://github.com/rocq-community/semantics.git
 cd semantics
 opam repo add rocq-released https://rocq-prover.org/opam/released
 opam install --deps-only .
@@ -157,6 +157,6 @@ llex.mll the lexical analyser to be used with the parser.
   options:
   - `-interpreter` (just to execute a program)
   - `-vcg` (to generate the conditions for the verification of an annotated program)
-  - `-vcg-coq` (to generate the conditions in coq syntax)
+  - `-vcg-rocq` (to generate the conditions in rocq syntax)
   - `-static-analysis` (to run the abstract interpreter).
 
