@@ -40,13 +40,55 @@ Compute f_star 100 (("x", 0) :: ("y", 0) :: nil)
 Compute f_star 50 (("x", 0) :: ("y", 0) :: nil)
   sum_1_10.
 
-Check Z.iter.
+(* f_star is nice, but it has the drawback that the number of steps is
+  described using a natural number,  not convenient when large numbers
+  of steps are required, which comes fast because steps are very small. *)
 
+(* The presentation also provides another approach to execution, where
+  fuel is consumed only when unrolling a loop.  On the other hand, this
+  approach relies on a function called Tarski_fix, which cannot be
+  executed in Rocq, because it is a potentially non-terminating function.
+  
+  The following function is an alternative to Tarski_fix, which is
+  "partially" executable because it simulates Tarski_fix for a certain
+  number of steps, before falling back on Tarski_fix. *)
 Definition tarski_fix_z (z : Z) {A B : Type}
   (F : (A -> option B) -> A -> option B) : A -> option B  :=
   Z.iter  z F (Tarski_fix F).
 
-Check ds_abstract.
+(* When using Tarski_fix_z with a numeric parameter that is too small
+  the results is too big and may break development environments like
+  visual studio (with vsrocq).   I advise not to perform the following
+  computation with a parameter 10 to tarski_fix_z. *)
+Compute  ds_abstract (@tarski_fix_z 100)
+        sum_1_10 (("x", 0) :: ("y", 0) :: nil).
+
+(* With the same infrastructure, it is also possible to compute safely,
+  where the value None is returned to express that not enough fuel was
+  given for the execution. *)
+Definition limited_unroll (z : Z) {A B : Type}
+  (F : (A -> option B) -> A -> option B) : A -> option B :=
+  Z.iter z F (fun _ => None).
+
+(* With unlimited unroll, the result is Some only if one
+  gave enough fuel for the execution of all loops*)
+Compute ds_abstract (@limited_unroll 100)
+        sum_1_10 (("x", 0) :: ("y", 0) :: nil).
+
+(* We see that 10 is not enough *)
+Compute ds_abstract (@limited_unroll 10)
+        sum_1_10 (("x", 0) :: ("y", 0) :: nil).
+
+(* We see that 10 is not enough, but 11 is enough *)
+Compute ds_abstract (@limited_unroll 11)
+        sum_1_10 (("x", 0) :: ("y", 0) :: nil).
+
+(* The function Tarski_fix cannot be described in Rocq, but it can be 
+  described in Ocaml.  The extracted code uses ds_abstract and Tarski_fix
+  to compute programs to their end, without the need to produce fuel, but
+  with the drawback that non-terminating programs do compute forever, or
+  terminate in execution errors (mostly stack-overflow). *)
+
 Definition le_list :=
   fun l =>
     match l with n1::n2::nil => n1 <= n2 | _ => False end.
