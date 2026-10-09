@@ -189,3 +189,11 @@ llex.mll the lexical analyser to be used with the parser.
   - `-vcg-rocq` (to generate the conditions in rocq syntax)
   - `-static-analysis` (to run the abstract interpreter).
 
+If one wishes to execute programs outside of Rocq, these files should be
+compiled using `make` (dependencies are described in the `opam` file).  The
+single binary file that is generated is called `little.native`  For
+instance:
+```
+./little.native -interpreter < ex.lil
+```
+
