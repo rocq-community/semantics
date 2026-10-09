@@ -154,6 +154,8 @@ documentation: |
    `Some l` where `l` is a list of bindings describing the final value of all
    program variables.
 
+   These execution modes are illustrated in file `example.v`.
+
   `extract_interpret.v`  This file contains the directives to extract code from
     the proved tools.
 
