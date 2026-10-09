@@ -124,8 +124,35 @@ documentation: |
     the tools.  This is nice for the examples.  There are no proofs on this
     parser, and when parsing fails, it simply returns the "skip" program.
 
-  `example.v`, `example2.v`, `ex_i.v`  These are examples where the abstract interpreter,
+  `example.v`, `example2.v`, `ex_i.v`  These are examples where the interpreter,  the abstract interpreter,
     and the vcg are used in a reflective manner directly inside Rocq.
+
+   To execute little programs inside Rocq, you should parse them using the
+   function `parse_instr'` and then remove the annotations using the function
+   `un_annot`. Beware that programs containg syntax errors will
+   silently be parsed to `skip`.  Then there are three ways to execute the
+   program.
+   - The function `f_star` can be used with a numeric argument which limits the
+   number of elementary steps of execution that can be performed.  This is
+   convenient only for small execution attempts, because the number of steps
+   is represented as a natural number an only small natural numbers can be
+   used.  This is proved correct in file `little.v`
+   - The function `ds_abstract` can be used with `Tarski_fix_z` and a numeric
+   argument that limits the number of times each loop can be unrolled.  This
+   is proved correct in file `denot.v` (only partially, because the proof
+   that `Tarski_fix_z n` and `Tarski_fix` are functionally equivalent has not
+   been formally verified.  This mode of execution is fragile because the
+   resulting term is overwhelmingly large when the numeric oargument provided
+   is too small for execution to complete.
+   - The function `ds_abstract` can be used with `limited_unroll` and a numeric
+   argument.  Here again, the numeric argument limits the number of times
+   each loop can be unrolled.  Execution with this technique have not been
+   proved correct yet.  This is the most practical: when the limit is too small,
+   the result is simply `None`.  When the limit is large enough, and there is
+   no other execution error (which may happen when the environment does not
+   contain initial values for some of the program variables), the result is
+   `Some l` where `l` is a list of bindings describing the final value of all
+   program variables.
 
   `extract_interpret.v`  This file contains the directives to extract code from
     the proved tools.
