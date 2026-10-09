@@ -23,7 +23,12 @@ apply comp_right_continuous.
 apply continuous_cst; auto.
 Qed.
 
-Definition phi := fun A t f => Tarski_fix (F_phi A t f).
+Definition phi_abstract
+  (fix_function : forall
+   {C D}, ((C -> option D) -> C -> option D) -> C -> option D):=
+   fun A t f => fix_function (F_phi A t f).
+
+Definition phi := phi_abstract Tarski_fix.
 
 Arguments phi : default implicits.
 
@@ -60,18 +65,27 @@ Qed.
 
 Open Scope Z_scope.
 
-Fixpoint ds(i:instr) : env -> option env :=
+Check phi_abstract.
+Fixpoint ds_abstract
+  (fix_function : forall (A B : Type), ((A -> option B) ->
+   A -> option B) -> A -> option B)(i:instr) : env -> option env :=
   match i with
     assign x e => fun l => bind (af l e) (fun v => uf l x v)
-  | sequence i1 i2 => fun r => bind (ds i1 r) (ds i2)
-  | while e i => fun l => phi (fun l' => bf l' e)(ds i) l
+  | sequence i1 i2 => fun r => bind (ds_abstract (fix_function) i1 r)
+    (ds_abstract (fix_function) i2)
+  | while e i => fun l =>
+    phi_abstract fix_function _
+    (fun l' => bf l' e)(ds_abstract fix_function i) l
   | skip => fun r => Some r
   end.
 
 Ltac case' f := case f;[idtac|intros; discriminate].
 
+Definition ds := ds_abstract Tarski_fix.
+
 Theorem ds_sn :  forall i l l', ds i l = Some l' -> exec l i l'.
 Proof.
+unfold ds.
 induction i.
 
 intros l l'; simpl; unfold bind.
@@ -84,14 +98,14 @@ rewrite Heq in Hu.
 eauto.
 
 simpl; unfold comp_right; intros l l'.
-generalize (IHi1 l); case' (ds i1 l).
+generalize (IHi1 l); case' (ds_abstract Tarski_fix i1 l).
 intros l1 Hi1; generalize (IHi2 l1).
 simpl; intros IHi2' Heq; rewrite Heq in IHi2'.
 eauto.
 
 simpl; intros l l' Heq.
 pose (f:= F_phi (list(string*Z))
-   (fun l => bf l b)(ds i)).
+   (fun l => bf l b)(ds_abstract Tarski_fix i)).
 
 assert (Hn: exists n:nat,
           iter _ f n (fun _ : list(string*Z) => None) l =
@@ -106,7 +120,7 @@ simpl. unfold f at 1, F_phi, ifthenelse at 1.
 generalize (bf_eval l b); case' (bf l b).
 intros [|] Hevalb.
 unfold bind at 1.
-generalize (IHi l); case' (ds i l).
+generalize (IHi l); case' (ds_abstract Tarski_fix i l).
 intros l1 Hds_i Hds_w.
  apply SN4 with l1.
 auto. auto. apply IHn. auto.
@@ -119,6 +133,7 @@ Qed.
 
 Theorem sn_ds : forall l i l', exec l i l' -> ds i l = Some l'.
 Proof.
+unfold ds.
 induction 1.
 
 auto.

@@ -3,8 +3,50 @@ Require Import little_w_string parser.
 Open Scope string_scope.
 Open Scope Z_scope.
 Open Scope a_scope.
-Import str AB A D L syntax.
+Import str AB A D L syntax denot.
 
+(* Executing sample programs with the small step functional description. *)
+
+(* The parser only produces annotated programs, and while loops in *)
+(* annotated programs have to carry an invariant.  Here we put an
+   invariant, but is discarded by the un_annot function. *)
+Definition sum_1_10 := Eval vm_compute in un_annot (parse_instr'
+  "x := 0;
+   y := 0;
+   while x < 10 do [le(x, 10)]
+    x := x + 1; y := x + y
+   done").
+
+(* One should always check that the parser returned something meaningful.
+  This parse has no error message, and produces an empty program if parsing
+  failed. *)
+Print sum_1_10.
+
+(* This is an example of computation of a program, with 100 steps of
+  maximal execution.  The result is of type option (env * instr).
+  If the result is None, computation failed.  This is usually caused by
+  the fact that the environment does not contain pairs for all variables
+  used in the program.
+  If the result is Some (e, i), then i is the instruction that describes
+  the work that remains to be done, and e is the current environment
+  describe the values of all the variables in the program.  If the number
+  of steps given as argument is high enough, then execution is complete and
+  i is the empty intruction called skip.  In this case,  the number of steps
+  is high enough. *)
+Compute f_star 100 (("x", 0) :: ("y", 0) :: nil)
+  sum_1_10.
+
+(* This is an example of execution that is not complete. *)
+Compute f_star 50 (("x", 0) :: ("y", 0) :: nil)
+  sum_1_10.
+
+Check Z.iter.
+
+Definition tarski_fix_z (z : Z) {A B : Type}
+  (F : (A -> option B) -> A -> option B) : A -> option B  :=
+  Z.iter  z F (Tarski_fix F).
+
+Check ds_abstract.
 Definition le_list :=
   fun l =>
     match l with n1::n2::nil => n1 <= n2 | _ => False end.
